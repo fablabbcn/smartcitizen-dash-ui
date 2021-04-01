@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width; initial-scale=1; shrink-to-fit=no;"/>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="dist/uPlot.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <main class="main">
+      <h1>Smart Citizen Dashboard</h1>
+      <section>
+        <h2>Smart Citizen Kit ID</h2>
+        <label for="kitId">ID number</label>
+        <input type="text" id="kitIdInput" name="kitId">
+        <input type="button" value="Ok" id="kitIdButton" onclick="initDashboard()"> 
+        <p class="hint" id="kitIdHint"></p>
+      </section>
+      <section id="kitData">
+        <h1 id="kitDataTitle"></h1>
+        <h2 id="kitDataDescription"></h2>
+      </section>
+    </main>
+  </body>
+  <script src="dist/uPlot.iife.min.js"></script>
+  <script src="script.js"></script>
+</html>
