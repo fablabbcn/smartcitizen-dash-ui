@@ -1,15 +1,12 @@
-const KitIdInput = document.getElementById("kitIdInput");
-
 window.onload = function () {
   initDashboard();
-  keyboardShortcuts();
 };
 
 function initDashboard() {
-  let kitId = KitIdInput.value;
+  let kitId = document.getElementById("kitIdInput").value;
   kitId.length > 0 && getKitData(kitId);
+  keyboardShortcuts();
 }
-
 
 function getKitData(id) {
   const api_kit_url = `https://api.smartcitizen.me/v0/devices/${id}`;
@@ -20,15 +17,24 @@ function getKitData(id) {
     .then((kit) => {
       if (kit.id != "record_not_found") {
         hintUpdate(id, "success");
-        getSensorsData(kit);
         displayKit(kit);
+        getSensorsData(kit);
       } else {
         hintUpdate(id, "failure");
       }
     });
 }
 
+function displayKit(kit) {
+  // console.log(kit);
+  dataToHtml("kitDataTitle", kit.name);
+  dataToHtml("kitDataDescription", kit.description);
+}
+
 function getSensorsData(kit) {
+  // Empty html
+  document.getElementById("sensorsData").innerText = "";
+  // Loop through all sensors
   for (let i = 0; kit.data.sensors.length > i; i++) {
     const api_sensor_url = `https://api.smartcitizen.me/v0/devices/${kit.id}/readings?sensor_id=${kit.data.sensors[i].id}&rollup=4h&from=2021-03-20&to=2021-03-31`;
     fetch(api_sensor_url)
@@ -39,12 +45,6 @@ function getSensorsData(kit) {
         displaySensor(sensor);
       });
   }
-}
-
-function displayKit(kit) {
-  // console.log(kit);
-  dataToHtml("kitDataTitle", kit.name);
-  dataToHtml("kitDataDescription", kit.description);
 }
 
 function displaySensor(sensor) {
@@ -75,43 +75,9 @@ function displaySensor(sensor) {
         },
       ],
     };
-    let uplot = new uPlot(opts, data, document.getElementById("kitData"));
+    let uplot = new uPlot(opts, data, document.getElementById("sensorsData"));
   }
 }
-
-
-
-
-
-// let data = [
-//   [1546300800, 1546387200], // x-values (timestamps)
-//   [35, 71], // y-values (series 1)
-//   [90, 15], // y-values (series 2)
-// ];
-// let opts = {
-//   title: "My Chart",
-//   id: "chart1",
-//   class: "my-chart",
-//   width: 800,
-//   height: 600,
-//   series: [
-//     {},
-//     {
-//       // initial toggled state (optional)
-//       show: true,
-//       spanGaps: false,
-//       // in-legend display
-//       label: "RAM",
-//       value: (self, rawValue) => "$" + rawValue.toFixed(2),
-//       // series style
-//       stroke: "red",
-//       width: 1,
-//       fill: "rgba(255, 0, 0, 0.3)",
-//       dash: [10, 5],
-//     },
-//   ],
-// };
-// let uplot = new uPlot(opts, data, document.getElementById('kitData'));
 
 // Data to html
 function dataToHtml(elementId, elementData) {
@@ -151,14 +117,16 @@ function hideShow(elementId, status) {
 
 function keyboardShortcuts() {
   // enter
-  KitIdInput.addEventListener("keyup", function (event) {
-    if (event.keyCode === 13) {
-      // cancel default action
-      event.preventDefault();
-      // trigger elements
-      document.getElementById("kitIdButton").click();
-    }
-  });
+  document
+    .getElementById("kitIdInput")
+    .addEventListener("keyup", function (event) {
+      if (event.keyCode === 13) {
+        // cancel default action
+        event.preventDefault();
+        // trigger elements
+        document.getElementById("kitIdButton").click();
+      }
+    });
 }
 
 
