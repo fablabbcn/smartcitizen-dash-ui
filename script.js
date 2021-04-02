@@ -13,8 +13,10 @@ function newKitId() {
 
 function initDashboard() {
   let kitId = urlGetParameters();
-  document.getElementById("kitIdInput").value = kitId;
-  kitId.length > 0 && getKitData(kitId);
+  if ((kitId != null) && (kitId.length > 0)) {
+    document.getElementById("kitIdInput").value = kitId;
+    getKitData(kitId);
+  }  
   keyboardShortcuts();
 }
 
