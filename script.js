@@ -2,8 +2,15 @@ window.onload = function () {
   initDashboard();
 };
 
-function initDashboard() {
+function newKitId() {
   let kitId = document.getElementById("kitIdInput").value;
+  urlAddParameter("kitId", kitId);
+  kitId.length > 0 && getKitData(kitId);
+}
+
+function initDashboard() {
+  let kitId = urlGetParameters();
+  document.getElementById("kitIdInput").value = kitId;
   kitId.length > 0 && getKitData(kitId);
   keyboardShortcuts();
 }
@@ -12,6 +19,7 @@ function getKitData(id) {
   const api_kit_url = `https://api.smartcitizen.me/v0/devices/${id}`;
   fetch(api_kit_url)
     .then((res) => {
+      if (res.status == 429) hintUpdate(id, "tooManyRequests");
       return res.json();
     })
     .then((kit) => {
@@ -22,6 +30,7 @@ function getKitData(id) {
       } else {
         hintUpdate(id, "failure");
       }
+      urlAddParameter("kitId", id);
     });
 }
 
@@ -79,6 +88,27 @@ function displaySensor(sensor) {
   }
 }
 
+
+
+function urlCheck() {
+  const url = new URL(window.location.href);
+  const params = url.searchParams;
+  return {url, params}
+}
+
+function urlAddParameter(parameter, value) {
+  let { url, params } = urlCheck();
+  params.set(parameter, value);
+  let new_url = url.toString();
+  history.pushState({}, null, new_url);
+}
+
+function urlGetParameters() {
+  let { url, params } = urlCheck();
+  kitId = params.get("kitId");
+  return kitId;
+}
+
 // Data to html
 function dataToHtml(elementId, elementData) {
   if (!!elementData) {
@@ -98,6 +128,9 @@ function hintUpdate(id, status) {
       break;
     case "failure":
       message = `We did not find the kit #${id} in our records.`;
+      break;
+    case "tooManyRequests":
+      message = "Too many requests, please wait 10 seconds before trying again.";
       break;
     default:
       message = "The ID number is the unique identifier of your kit.";
