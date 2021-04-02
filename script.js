@@ -3,6 +3,9 @@ window.onload = function () {
 };
 
 function newKitId() {
+  // Empty html
+  hideShow("kitData", "hide");
+  hideShow("sensorsData", "hide");
   let kitId = document.getElementById("kitIdInput").value;
   urlAddParameter("kitId", kitId);
   kitId.length > 0 && getKitData(kitId);
@@ -27,6 +30,8 @@ function getKitData(id) {
         hintUpdate(id, "success");
         displayKit(kit);
         getSensorsData(kit);
+        hideShow("kitData", "show");
+        hideShow("sensorsData", "show");
       } else {
         hintUpdate(id, "failure");
       }
@@ -35,18 +40,15 @@ function getKitData(id) {
 }
 
 function displayKit(kit) {
-  // console.log(kit);
   dataToHtml("kitDataTitle", kit.name);
   dataToHtml("kitDataDescription", kit.description);
 }
 
 function getSensorsData(kit) {
-  // Empty html
-  document.getElementById("sensorsData").innerText = "";
   // Loop through all sensors
   for (let i = 0; kit.data.sensors.length > i; i++) {
-    const api_sensor_url = `https://api.smartcitizen.me/v0/devices/${kit.id}/readings?sensor_id=${kit.data.sensors[i].id}&rollup=4h&from=2021-03-20&to=2021-03-31`;
-    fetch(api_sensor_url)
+    const api_sensor_url = `https://api.smartcitizen.me/v0/devices/${kit.id}/readings?sensor_id=${kit.data.sensors[i].id}&rollup=4h&from=2021-03-01&to=2021-03-31`;
+    https: fetch(api_sensor_url)
       .then((res) => {
         return res.json();
       })
@@ -60,7 +62,8 @@ function displaySensor(sensor) {
   let readings = sensor.readings;
   let data = [[], []]
   for (const reading of readings) {
-    data[0].push(new Date(reading[0]).getTime());
+    let date = new Date(reading[0]).getTime();
+    data[0].push(date);
     data[1].push(reading[1]);
   }
   if (data != undefined && data[0].length > 0) {
@@ -74,11 +77,11 @@ function displaySensor(sensor) {
         {},
         {
           show: true,
-          spanGaps: false,
-          label: "RAM",
+          spanGaps: true,
+          label: sensor.sensor_key,
           value: (self, rawValue) => "$" + rawValue.toFixed(2),
           stroke: "red",
-          width: 1,
+          width: 0.1,
           fill: "rgba(255, 0, 0, 0.3)",
           dash: [10, 5],
         },
