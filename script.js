@@ -56,7 +56,7 @@ function getSensorsData(kit) {
   // Loop through all sensors
   document.getElementById("sensorsData").innerHTML = "";
   for (let i = 0; kit.data.sensors.length > i; i++) {
-    const api_sensor_url = `https://api.smartcitizen.me/v0/devices/${kit.id}/readings?sensor_id=${kit.data.sensors[i].id}&rollup=4h&from=2021-03-01&to=2021-03-31`;
+    const api_sensor_url = `https://api.smartcitizen.me/v0/devices/${kit.id}/readings?sensor_id=${kit.data.sensors[i].id}&rollup=1h&from=2021-03-01&to=2021-03-31`;
     https: fetch(api_sensor_url)
       .then((res) => {
         return res.json();
@@ -71,7 +71,8 @@ function displaySensor(kit, sensor, i) {
   let readings = sensor.readings;
   let data = [[], []];
   for (const reading of readings) {
-    let date = new Date(reading[0]).getTime();
+    let date = new Date(reading[0]).getTime() / 1000;
+    console.log(date)
     data[0].push(date);
     data[1].push(reading[1]);
   }
@@ -81,7 +82,6 @@ function displaySensor(kit, sensor, i) {
     const opts = {
       title: kit.data.sensors[i].description,
       id: kit.data.sensors[i].id,
-      tzDate: (ts) => uPlot.tzDate(new Date(ts * 1e3), "Etc/UTC"),
       class: "chart",
       width: canvasWidth,
       height: canvasHeight,
@@ -91,17 +91,33 @@ function displaySensor(kit, sensor, i) {
           show: true,
           spanGaps: true,
           label: sensor.sensor_key,
-          stroke: "#000",
           fill: "#000",
-          width: 2,
         },
       ],
-      grid: {
-        show: true,
-        stroke: "#eee",
-        width: 2,
-        dash: [],
-      },
+      axes: [
+        {},
+        {
+          show: true,
+          label: kit.data.sensors[i].name,
+          labelSize: 30,
+          gap: 5,
+          size: 50,
+          stroke: "black",
+          grid: {
+            show: true,
+            stroke: "#eee",
+            width: 2,
+            dash: [],
+          },
+          ticks: {
+            show: true,
+            stroke: "#eee",
+            width: 2,
+            dash: [],
+            size: 10,
+          },
+        },
+      ],
     };
     let uplot = new uPlot(opts, data, document.getElementById("sensorsData"));
     sensorDataUpdate(kit.data.sensors[i]);
