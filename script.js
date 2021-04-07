@@ -13,10 +13,10 @@ function newKitId() {
 
 function initDashboard() {
   let kitId = urlGetParameters();
-  if ((kitId != null) && (kitId.length > 0)) {
+  if (kitId != null && kitId.length > 0) {
     document.getElementById("kitIdInput").value = kitId;
     getKitData(kitId);
-  }  
+  }
   keyboardShortcuts();
 }
 
@@ -29,13 +29,19 @@ function getKitData(id) {
     })
     .then((kit) => {
       if (kit.id != "record_not_found") {
-        hintUpdate(id, "success");
-        displayKit(kit);
-        getSensorsData(kit);
-        hideShow("kitData", "show");
-        hideShow("sensorsData", "show");
+        if (kit.system_tags.includes("online")) {
+          hintUpdate(id, "success");
+          displayKit(kit);
+          getSensorsData(kit);
+          hideShow("kitData", "show");
+          hideShow("sensorsData", "show");
+        } else {
+          hintUpdate(id, "offline");
+          hideShow("sensorsData", "hide");
+        }
       } else {
         hintUpdate(id, "failure");
+        hideShow("sensorsData", "hide");
       }
       urlAddParameter("kitId", id);
     });
@@ -48,6 +54,7 @@ function displayKit(kit) {
 
 function getSensorsData(kit) {
   // Loop through all sensors
+  document.getElementById("sensorsData").innerHTML = "";
   for (let i = 0; kit.data.sensors.length > i; i++) {
     const api_sensor_url = `https://api.smartcitizen.me/v0/devices/${kit.id}/readings?sensor_id=${kit.data.sensors[i].id}&rollup=4h&from=2021-03-01&to=2021-03-31`;
     https: fetch(api_sensor_url)
@@ -55,50 +62,68 @@ function getSensorsData(kit) {
         return res.json();
       })
       .then((sensor) => {
-        displaySensor(sensor);
+        displaySensor(kit, sensor, i);
       });
   }
 }
 
-function displaySensor(sensor) {
+function displaySensor(kit, sensor, i) {
   let readings = sensor.readings;
-  let data = [[], []]
+  let data = [[], []];
   for (const reading of readings) {
     let date = new Date(reading[0]).getTime();
     data[0].push(date);
     data[1].push(reading[1]);
   }
   if (data != undefined && data[0].length > 0) {
-    let opts = {
-      title: sensor.id,
-      id: sensor.id,
+    const canvasWidth = 600;
+    const canvasHeight = (canvasWidth / 3) * 2;
+    const opts = {
+      title: kit.data.sensors[i].description,
+      id: kit.data.sensors[i].id,
+      tzDate: (ts) => uPlot.tzDate(new Date(ts * 1e3), "Etc/UTC"),
       class: "chart",
-      width: 800,
-      height: 400,
+      width: canvasWidth,
+      height: canvasHeight,
       series: [
         {},
         {
           show: true,
           spanGaps: true,
           label: sensor.sensor_key,
-          value: (self, rawValue) => "$" + rawValue.toFixed(2),
-          stroke: "red",
-          width: 0.1,
-          fill: "rgba(255, 0, 0, 0.3)",
-          dash: [10, 5],
+          stroke: "#000",
+          fill: "#000",
+          width: 2,
         },
       ],
+      grid: {
+        show: true,
+        stroke: "#eee",
+        width: 2,
+        dash: [],
+      },
     };
     let uplot = new uPlot(opts, data, document.getElementById("sensorsData"));
+    sensorDataUpdate(kit.data.sensors[i]);
   }
 }
 
-
+function sensorDataUpdate(sensor) {
+  const target = document
+    .getElementById(sensor.id)
+    .getElementsByClassName("u-wrap")[0];
+  if (target) {
+    const elem = document.createElement("div");
+    elem.classList.add("u-value");
+    elem.innerText = sensor.prev_value + " " + sensor.unit;
+    target.parentNode.insertBefore(elem, target);
+  }
+}
 
 function urlCheck() {
   const url = new URL(window.location.href);
   const params = url.searchParams;
-  return {url, params}
+  return { url, params };
 }
 
 function urlAddParameter(parameter, value) {
@@ -135,7 +160,11 @@ function hintUpdate(id, status) {
       message = `We did not find the kit #${id} in our records.`;
       break;
     case "tooManyRequests":
-      message = "Too many requests, please wait 10 seconds before trying again.";
+      message =
+        "Too many requests, please wait 10 seconds before trying again.";
+      break;
+    case "offline":
+      message = `The kit #${id} has been found, but seems to be offline.`;
       break;
     default:
       message = "The ID number is the unique identifier of your kit.";
@@ -147,7 +176,7 @@ function hintUpdate(id, status) {
 // Hide and show html elements
 function hideShow(elementId, status) {
   if (status === "show") {
-    document.getElementById(elementId).style.display = "block";
+    document.getElementById(elementId).style.display = "flex";
   } else if (status === "hide") {
     document.getElementById(elementId).style.display = "none";
   }
@@ -166,5 +195,3 @@ function keyboardShortcuts() {
       }
     });
 }
-
-

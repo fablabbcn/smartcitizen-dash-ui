@@ -1,0 +1,40 @@
+.uplot.chart {
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+.u-wrap {
+  width: 100% !important;
+  height: 0 !important;
+  padding-bottom: calc(100%/3*2);
+}
+.uplot canvas {
+  position: absolute;
+  top: 0; left: 0;
+}
+.u-legend .u-series {
+  display: block;
+}
+.u-value {
+  text-align: center;
+}
+
+.grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.grid .uplot {
+  width: calc(100%/3);
+}
+
+#kitData {
+  display: flex;
+  flex-direction: column;
+}
+
+@media screen and (max-width: 820px) {
+  .grid .uplot {
+    width: 100%;
+  }
+}
