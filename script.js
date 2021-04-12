@@ -55,11 +55,12 @@ function displayKits(kits) {
     const elem = document.createElement("article");
     const elemTitle = document.createElement("h2");
     const elemUpdated = document.createElement("p");
+    elem.id = kitsActive[i].id;
     elemTitle.innerHTML = kitsActive[i].name;
     elemUpdated.innerHTML =
       "last update: " +
       new Date(kitsActive[i].updated_at).toLocaleString("en-GB");
-    document.body.appendChild(elem);
+    document.getElementById("main").appendChild(elem);
     elem.appendChild(elemTitle);
     elem.appendChild(elemUpdated);
   }
