@@ -120,6 +120,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
   // Display search
   const searchInput = document.createElement("input");
   searchInput.type = "text";
+  searchInput.placeholder = "search";
   searchInput.classList.add("fuzzy-search");
   searchInput.id = "searchInput";
   elemParent.appendChild(searchInput);
@@ -241,6 +242,17 @@ function displaySensor(kit, sensor, i) {
       ]
     };
     let uplot = new uPlot(opts, data, document.getElementById(kit.data.sensors[i].id));
+  } else {
+    const elem = document.createElement("li");
+    const elemTitle = document.createElement("h1");
+    const elemValue = document.createElement("h2");
+    elemTitle.innerHTML = kit.data.sensors[i].description;
+    elemValue.innerHTML = "No data";
+    elem.id = kit.data.sensors[i].id;
+    elem.classList.add("empty");
+    elem.appendChild(elemTitle);
+    elem.appendChild(elemValue);
+    document.getElementById("sensors").appendChild(elem);
   }
   loading(false);
 }

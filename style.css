@@ -1,9 +1,86 @@
+/* CSS Reset */
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Variables */
+:root {
+  /* Colors */
+  --base-color: #2e2e2e;
+  --body-color: #FFFFFF;
+  --action-color: blue;
+  /* Fonts */
+  --font-body: Helvetica Neue, Helvetica, Arial, sans-serif;
+  --font-mono: monaco, Consolas, Lucida Console, monospace;
+  --size-xxs: calc(1rem / 4 * 1);
+  --size-xs: calc(1rem / 4 * 2);
+  --size-sm: calc(1rem / 4 * 3);
+  --size-md: calc(1rem / 4 * 4);
+  --size-lg: calc(1rem / 4 * 5);
+  --size-xl: calc(1rem / 4 * 6);
+  --size-xxl: calc(1rem / 4 * 8);
+  /* Misc */
+  --border-sm: 2px;
+  --content-max-width: 640px;
+  --opacity: .8;
+}
+
+/* General */
+body {
+  font-size: var(--size-md);
+  font-family: var(--font-body); 
+}
+.main {
+  padding: var(--size-lg) var(--size-md);
+}
+
+/* Reset and loading */
+.reset, .loading {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  padding: var(--size-xs);
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  font-size: var(--size-sm);
+}
+
+/* Reset */
+.reset {
+  cursor: pointer;
+  background-color: var(--action-color);
+  color: var(--body-color);
+}
+.reset:hover {
+  opacity: var(--opacity);
+}
+
+/* Loading */
+.loading {
+  background-color: var(--base-color);
+  color: var(--body-color);
+}
 body.isLoading .reset,
 body.isLoading .main {
   display: none;
 }
 body:not(.isLoading) .loading {
   display: none;
+}
+
+/* List */
+.list {
+  list-style: none;
+}
+.list > li {
+  border: var(--border-sm) solid var(--base-color);
+  padding: var(--size-md);
+  margin-bottom: var(--size-lg);
+  border-radius: var(--size-md);
 }
 
 /* uPlot */
