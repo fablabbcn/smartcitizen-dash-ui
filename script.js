@@ -114,21 +114,40 @@ function displayKits(kits, filterType = null, filterValue = null) {
   elemTitle.parentNode.insertBefore(elemSubtitle, elemTitle.nextSibling);
   let x = 0;
   // Display active and inactive kits
-  const elemParent = document.createElement("ul");
+  const elemParent = document.createElement("section");
+  elemParent.id = "kitsList"
   document.getElementById("main").appendChild(elemParent);
+  // Display search
+  const searchInput = document.createElement("input");
+  searchInput.type = "text";
+  searchInput.classList.add("fuzzy-search");
+  searchInput.id = "searchInput";
+  elemParent.appendChild(searchInput);
+  // Display list
+  const elemList = document.createElement("ul");
+  elemList.classList.add("list");
+  elemParent.appendChild(elemList);
   while (x < 2) {
     let currentKit;
     x === 0 ? (currentKit = kitsActive) : (currentKit = kitsInactive);
     for (let i = 0; i < currentKit.length; i++) {
       const elem = document.createElement("li");
       const elemTitle = document.createElement("h2");
+      const elemId = document.createElement("h3");
       const elemCity = document.createElement("h3");
       const elemTags = document.createElement("ul");
       const elemUpdated = document.createElement("p");
       elem.id = currentKit[i].id;
-      elemTitle.innerHTML = currentKit[i].name + " (" + currentKit[i].id + ")";
+      elemTitle.innerHTML = currentKit[i].name;
+      elemId.innerHTML = currentKit[i].id;
       elemCity.innerHTML = currentKit[i].city;
+      elemId.classList.add("id");
+      elemTitle.classList.add("name");
+      elemCity.classList.add("city");
+      elemTags.classList.add("tags");
+      elemUpdated.classList.add("update");
       elem.appendChild(elemTitle);
+      elem.appendChild(elemId);
       elem.appendChild(elemCity);
       elem.appendChild(elemTags);
       if (currentKit[i].user_tags.length > 0) {
@@ -144,7 +163,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
       }
       elemUpdated.innerHTML = "last update: " + new Date(currentKit[i].updated_at).toLocaleString("en-GB");
       elem.appendChild(elemUpdated);
-      elemParent.appendChild(elem);
+      elemList.appendChild(elem);
       document.getElementById("main").classList.remove("detail");
       document.getElementById("main").classList.add("index");
       elemTitle.onclick = function () {
@@ -158,6 +177,10 @@ function displayKits(kits, filterType = null, filterValue = null) {
     }
     x++;
   }
+  // Search init
+  const kitsList = new List('kitsList', { 
+    valueNames: ['name', 'id', 'city', 'tags', 'update']
+  });
   loading(false);
 }
 
