@@ -33,7 +33,7 @@
   flex-direction: column;
 }
 
-.main.index article {
+.main.index article h2 {
   cursor: pointer;
 }
 
