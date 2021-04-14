@@ -14,6 +14,8 @@ window.onload = function () {
 // Init
 function dashboardInit() {
   urlParameters();
+  interface();
+  loading(true);
   if (id) {
     getKit();
   } else if (tag) {
@@ -128,6 +130,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
     }
     x++;
   }
+  loading(false);
 }
 
 // Display kit (detail)
@@ -158,9 +161,15 @@ function urlAddParameter(parameter, value) {
     params.delete(key);
   });
   // Add new parameter
-  params.set(parameter, value);
+  if (parameter != null) {
+    params.set(parameter, value);
+  }
   let new_url = url.toString();
   history.pushState({}, null, new_url);
+}
+
+function loading(status) {
+  status ? document.body.classList.add("isLoading") : document.body.classList.remove("isLoading");
 }
 
 // Alert update
@@ -175,4 +184,13 @@ function alertUpdate(id, status) {
       break;
   }
   document.getElementById("alert").innerText = alert;
+}
+
+// Interface elements
+function interface() {
+  // reset
+  document.getElementById("reset").onclick = function () {
+    urlAddParameter(null);
+    dashboardInit();
+  };
 }
