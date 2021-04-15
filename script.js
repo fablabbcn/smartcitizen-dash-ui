@@ -112,15 +112,14 @@ function displayKits(kits, filterType = null, filterValue = null) {
   elemSubtitle.id = "subtitle";
   elemSubtitle.innerHTML = `${kitsActive.length} active kits today, of a total of ${kitsFiltered.length}`;
   elemTitle.parentNode.insertBefore(elemSubtitle, elemTitle.nextSibling);
-  let x = 0;
   // Display active and inactive kits
   const elemParent = document.createElement("section");
-  elemParent.id = "kitsList"
+  elemParent.id = "kitsList";
   document.getElementById("main").appendChild(elemParent);
   // Display search
   const searchInput = document.createElement("input");
   searchInput.type = "text";
-  searchInput.placeholder = "search";
+  searchInput.placeholder = "filter";
   searchInput.classList.add("fuzzy-search");
   searchInput.id = "searchInput";
   elemParent.appendChild(searchInput);
@@ -128,33 +127,44 @@ function displayKits(kits, filterType = null, filterValue = null) {
   const elemList = document.createElement("ul");
   elemList.classList.add("list");
   elemParent.appendChild(elemList);
+  let x = 0;
   while (x < 2) {
     let currentKit;
-    x === 0 ? (currentKit = kitsActive) : (currentKit = kitsInactive);
+    let kitStatus;
+    if (x === 0) {
+      kitStatus = "active";
+      currentKit = kitsActive;
+    } else {
+      kitStatus = "inactive";
+      currentKit = kitsInactive;
+    }
     for (let i = 0; i < currentKit.length; i++) {
       const elem = document.createElement("li");
       const elemTitle = document.createElement("h2");
-      const elemId = document.createElement("h3");
-      const elemCity = document.createElement("h3");
-      const elemTags = document.createElement("ul");
+      const elemId = document.createElement("span");
+      const elemCity = document.createElement("h4");
+      const elemTags = document.createElement("div");
       const elemUpdated = document.createElement("p");
       elem.id = currentKit[i].id;
+      elem.classList.add(kitStatus);
       elemTitle.innerHTML = currentKit[i].name;
       elemId.innerHTML = currentKit[i].id;
-      elemCity.innerHTML = currentKit[i].city;
+      elemCity.innerHTML = "📍 " + currentKit[i].city;
       elemId.classList.add("id");
       elemTitle.classList.add("name");
       elemCity.classList.add("city");
-      elemTags.classList.add("tags");
       elemUpdated.classList.add("update");
+      elemList.appendChild(elem);
       elem.appendChild(elemTitle);
-      elem.appendChild(elemId);
+      elemTitle.appendChild(elemId);
       elem.appendChild(elemCity);
-      elem.appendChild(elemTags);
       if (currentKit[i].user_tags.length > 0) {
+        elem.appendChild(elemTags);
+        elemTags.classList.add("tags");
         for (let j = 0; j < currentKit[i].user_tags.length; j++) {
-          const elemTag = document.createElement("li");
+          const elemTag = document.createElement("span");
           elemTag.innerHTML = currentKit[i].user_tags[j];
+          elemTag.classList.add('tag');
           elemTag.onclick = function () {
             urlAddParameter("tag", currentKit[i].user_tags[j]);
             dashboardInit();
@@ -164,7 +174,6 @@ function displayKits(kits, filterType = null, filterValue = null) {
       }
       elemUpdated.innerHTML = "last update: " + new Date(currentKit[i].updated_at).toLocaleString("en-GB");
       elem.appendChild(elemUpdated);
-      elemList.appendChild(elem);
       document.getElementById("main").classList.remove("detail");
       document.getElementById("main").classList.add("index");
       elemTitle.onclick = function () {
@@ -180,10 +189,13 @@ function displayKits(kits, filterType = null, filterValue = null) {
   }
   // Search init
   const kitsList = new List('kitsList', { 
-    valueNames: ['name', 'id', 'city', 'tags', 'update']
+    valueNames: ['name', 'city', 'tag', 'update']
   });
   loading(false);
 }
+
+
+
 
 // Display kit (detail)
 function displayKit(kit) {

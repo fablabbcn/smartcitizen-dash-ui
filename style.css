@@ -8,12 +8,14 @@
 /* Variables */
 :root {
   /* Colors */
-  --base-color: #2e2e2e;
+  --base-color: #000000;
   --body-color: #FFFFFF;
-  --action-color: blue;
+  --action-color: #0065ff;
+  --color-lightgray: #dfdfdf;
+  --color-darkgray: #c2c2c2;
   /* Fonts */
-  --font-body: Helvetica Neue, Helvetica, Arial, sans-serif;
-  --font-mono: monaco, Consolas, Lucida Console, monospace;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --size-xxs: calc(1rem / 4 * 1);
   --size-xs: calc(1rem / 4 * 2);
   --size-sm: calc(1rem / 4 * 3);
@@ -22,26 +24,30 @@
   --size-xl: calc(1rem / 4 * 6);
   --size-xxl: calc(1rem / 4 * 8);
   /* Misc */
-  --border-sm: 2px;
+  --border-sm: 1px;
+  --border-md: 3px;
   --content-max-width: 640px;
-  --opacity: .8;
+  --opacity: .5;
 }
 
 /* General */
 body {
   font-size: var(--size-md);
-  font-family: var(--font-body); 
+  font-family: var(--font-body);
+  background-color: var(--color-lightgray);
 }
 .main {
+  margin-top: var(--size-xxl);
   padding: var(--size-lg) var(--size-md);
 }
 
 /* Reset and loading */
 .reset, .loading {
   position: fixed;
-  bottom: 0;
+  top: 0;
   left: 0;
   width: 100%;
+  z-index: 999;
   text-align: center;
   padding: var(--size-xs);
   text-transform: uppercase;
@@ -63,6 +69,8 @@ body {
 .loading {
   background-color: var(--base-color);
   color: var(--body-color);
+  padding-top: 45vh;
+  height: 100vh;
 }
 body.isLoading .reset,
 body.isLoading .main {
@@ -72,15 +80,73 @@ body:not(.isLoading) .loading {
   display: none;
 }
 
+/* Titles */
+#subtitle {
+  margin-bottom: var(--size-lg);
+}
+
+/* Search */
+.fuzzy-search {
+  width: 100%;
+  margin-bottom: var(--size-lg);
+}
+
 /* List */
 .list {
   list-style: none;
 }
 .list > li {
-  border: var(--border-sm) solid var(--base-color);
   padding: var(--size-md);
-  margin-bottom: var(--size-lg);
-  border-radius: var(--size-md);
+  margin-bottom: var(--size-xl);
+  background-color: var(--body-color);
+  border-radius: var(--size-sm);
+  box-shadow: 0 0 var(--size-md) var(--color-darkgray);
+}
+.list .inactive {
+  opacity: .3;
+}
+.list .name,
+.list .city,
+.list .tag {
+  cursor: pointer;
+}
+.list .name:hover,
+.list .city:hover,
+.list .tag:hover {
+  opacity: var(--opacity);
+}
+.list .name {
+  color: var(--action-color);
+  margin-bottom: var(--size-xs);
+}
+.list .id {
+  font-size: var(--size-sm);
+  font-family: var(--font-mono);
+  margin-left: var(--size-xs);
+}
+.list .city {
+  margin-top: var(--size-md);
+}
+.list .update {
+  font-size: var(--size-xs);
+  font-family: var(--font-mono);
+  margin-top: var(--size-sm);
+  text-transform: uppercase;
+}
+.list .tags {
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.list .tag {
+  margin-top: var(--size-xs);
+  margin-right: var(--size-xs);
+  font-size: var(--size-xs);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  border: var(--border-sm) solid var(--base-color);
+  padding: var(--size-xxs) var(--size-xs);
 }
 
 /* uPlot */
