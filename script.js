@@ -22,6 +22,8 @@ function dashboardInit() {
     getKits("tag", tag);
   } else if (city) {
     getKits("city", city);
+  } else if (user) {
+    getKits("user", user);  
   } else {
     getKits();
   }
@@ -88,6 +90,8 @@ function displayKits(kits, filterType = null, filterValue = null) {
       if (filterType === "tag" && kit.user_tags.includes(filterValue)) {
         kitsFiltered.push(kit);
       } else if (filterType === "city" && kit.city === filterValue) {
+        kitsFiltered.push(kit);
+      } else if (filterType === "user" && kit.owner_username === filterValue) {
         kitsFiltered.push(kit);
       }
     } else {
@@ -159,11 +163,22 @@ function displayKits(kits, filterType = null, filterValue = null) {
       // city
       if (currentKit[i].city) {
         const elemCity = document.createElement("h4");
-        elemCity.innerHTML = "📍 " + currentKit[i].city;
+        elemCity.innerHTML = "📍 " + currentKit[i].city + " (" + currentKit[i].country_code + ")";
         elemCity.classList.add("city");
         elem.appendChild(elemCity);
         elemCity.onclick = function () {
           urlAddParameter("city", currentKit[i].city);
+          dashboardInit();
+        };
+      }
+      // user
+      if (currentKit[i].owner_username) {
+        const elemUser = document.createElement("h4");
+        elemUser.innerHTML = "👤 " + currentKit[i].owner_username;
+        elemUser.classList.add("user");
+        elem.appendChild(elemUser);
+        elemUser.onclick = function () {
+          urlAddParameter("user", currentKit[i].owner_username);
           dashboardInit();
         };
       }
@@ -288,6 +303,7 @@ function urlParameters() {
   params.has("id") === true ? (id = params.get("id")) : (id = null);
   params.has("tag") === true ? (tag = params.get("tag")) : (tag = null);
   params.has("city") === true ? (city = params.get("city")) : (city = null);
+  params.has("user") === true ? (user = params.get("user")) : (user = null);
 }
 
 // Add url parameter

@@ -107,18 +107,20 @@ body:not(.isLoading) .loading {
 }
 .list .name,
 .list .city,
-.list .tag {
+.list .tag,
+.list .user {
   cursor: pointer;
 }
 .list .name:hover,
 .list .city:hover,
-.list .tag:hover {
+.list .tag:hover,
+.list .user:hover {
   opacity: var(--opacity);
 }
 .list .name {
   font-size: var(--size-lg);
   color: var(--action-color);
-  margin-bottom: var(--size-xs);
+  margin-bottom: var(--size-md);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -128,8 +130,9 @@ body:not(.isLoading) .loading {
   font-family: var(--font-mono);
   margin-left: var(--size-xs);
 }
+.list .user,
 .list .city {
-  margin-top: var(--size-md);
+  margin-bottom: var(--size-xs);
 }
 .list .update {
   font-size: var(--size-xs);
@@ -152,6 +155,11 @@ body:not(.isLoading) .loading {
   border: var(--border-sm) solid var(--base-color);
   padding: var(--size-xxs) var(--size-xs);
 }
+/* .list .user,
+.list .city {
+  display: inline-block;
+  margin-right: var(--size-sm);
+} */
 /* detail */
 .detail li h2,
 .detail li h3 {
