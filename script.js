@@ -140,25 +140,36 @@ function displayKits(kits, filterType = null, filterValue = null) {
     }
     for (let i = 0; i < currentKit.length; i++) {
       const elem = document.createElement("li");
+      elem.classList.add(kitStatus);
+      elemList.appendChild(elem);
+      // title & id
       const elemTitle = document.createElement("h2");
       const elemId = document.createElement("span");
-      const elemCity = document.createElement("h4");
-      const elemTags = document.createElement("div");
-      const elemUpdated = document.createElement("p");
       elem.id = currentKit[i].id;
-      elem.classList.add(kitStatus);
       elemTitle.innerHTML = currentKit[i].name;
       elemId.innerHTML = currentKit[i].id;
-      elemCity.innerHTML = "📍 " + currentKit[i].city;
       elemId.classList.add("id");
       elemTitle.classList.add("name");
-      elemCity.classList.add("city");
-      elemUpdated.classList.add("update");
-      elemList.appendChild(elem);
+      elemTitle.onclick = function () {
+        urlAddParameter("id", currentKit[i].id);
+        dashboardInit();
+      };
       elem.appendChild(elemTitle);
       elemTitle.appendChild(elemId);
-      elem.appendChild(elemCity);
+      // city
+      if (currentKit[i].city) {
+        const elemCity = document.createElement("h4");
+        elemCity.innerHTML = "📍 " + currentKit[i].city;
+        elemCity.classList.add("city");
+        elem.appendChild(elemCity);
+        elemCity.onclick = function () {
+          urlAddParameter("city", currentKit[i].city);
+          dashboardInit();
+        };
+      }
+      // tags
       if (currentKit[i].user_tags.length > 0) {
+        const elemTags = document.createElement("div");
         elem.appendChild(elemTags);
         elemTags.classList.add("tags");
         for (let j = 0; j < currentKit[i].user_tags.length; j++) {
@@ -172,18 +183,16 @@ function displayKits(kits, filterType = null, filterValue = null) {
           elemTags.appendChild(elemTag);
         }
       }
+      // update
+      const elemUpdated = document.createElement("p");
+      elemUpdated.classList.add("update");
       elemUpdated.innerHTML = "last update: " + new Date(currentKit[i].updated_at).toLocaleString("en-GB");
+      // reset
+      document.getElementById("reset").innerText = "Reset filter";
+      // classes
       elem.appendChild(elemUpdated);
       document.getElementById("main").classList.remove("detail");
       document.getElementById("main").classList.add("index");
-      elemTitle.onclick = function () {
-        urlAddParameter("id", currentKit[i].id);
-        dashboardInit();
-      };
-      elemCity.onclick = function () {
-        urlAddParameter("city", currentKit[i].city);
-        dashboardInit();
-      };
     }
     x++;
   }
@@ -194,24 +203,36 @@ function displayKits(kits, filterType = null, filterValue = null) {
   loading(false);
 }
 
-
-
-
 // Display kit (detail)
 function displayKit(kit) {
   document.getElementById("main").innerHTML = "";
+  // title
   const elemTitle = document.createElement("h1");
-  const elemLink = document.createElement("a");
-  const elemSensors = document.createElement("ul");
   elemTitle.id = "title";
+  elemTitle.innerHTML = `Smart Citizen Dashboard`;
+  document.getElementById("main").appendChild(elemTitle);
+  // subtitle
+  const elemSubtitle = document.createElement("h2");
+  elemSubtitle.id = "subtitle";
+  elemSubtitle.innerHTML = `${kit.name}`;
+  document.getElementById("main").appendChild(elemSubtitle);
+  // sensors
+  const elemSensors = document.createElement("ul");
   elemSensors.id = "sensors";
-  elemTitle.innerHTML = `Smart Citizen Dashboard: ${kit.name}`;
-  elemLink.innerHTML = 'More info on this kit';
+  elemSensors.classList.add('list');
+  document.getElementById("main").appendChild(elemSensors);
+  // link
+  const elemLink = document.createElement("a");
+  elemLink.innerHTML = 'More info on this kit&nbsp↗';
   elemLink.href = `https://smartcitizen.me/kits/${kit.id}`;
   elemLink.target = "_blank";
-  document.getElementById("main").appendChild(elemTitle);
+  elemLink.classList.add('more');
   document.getElementById("main").appendChild(elemLink);
-  document.getElementById("main").appendChild(elemSensors);
+  // reset
+  document.getElementById("reset").innerText = "Back to index";
+  // classes
+  document.getElementById("main").classList.remove("index");
+  document.getElementById("main").classList.add("detail");
 }
 
 // Display sensor
@@ -225,13 +246,15 @@ function displaySensor(kit, sensor, i) {
   }
   if (data != undefined && data[0].length > 0) {
     const elem = document.createElement("li");
-    const elemTitle = document.createElement("h1");
-    const elemValue = document.createElement("h2");
-    elemTitle.innerHTML = kit.data.sensors[i].description;
-    elemValue.innerHTML = kit.data.sensors[i].value + " " + kit.data.sensors[i].unit;
     elem.id = kit.data.sensors[i].id;
-    elem.appendChild(elemTitle);
+    // value
+    const elemValue = document.createElement("h2");
+    elemValue.innerHTML = Math.floor(kit.data.sensors[i].value) + " " + kit.data.sensors[i].unit;
     elem.appendChild(elemValue);
+    // title
+    const elemTitle = document.createElement("h3");
+    elemTitle.innerHTML = kit.data.sensors[i].description;
+    elem.appendChild(elemTitle);
     document.getElementById("sensors").appendChild(elem);
     const canvasWidth = 600;
     const canvasHeight = (canvasWidth / 3) * 2;
@@ -254,17 +277,6 @@ function displaySensor(kit, sensor, i) {
       ]
     };
     let uplot = new uPlot(opts, data, document.getElementById(kit.data.sensors[i].id));
-  } else {
-    const elem = document.createElement("li");
-    const elemTitle = document.createElement("h1");
-    const elemValue = document.createElement("h2");
-    elemTitle.innerHTML = kit.data.sensors[i].description;
-    elemValue.innerHTML = "No data";
-    elem.id = kit.data.sensors[i].id;
-    elem.classList.add("empty");
-    elem.appendChild(elemTitle);
-    elem.appendChild(elemValue);
-    document.getElementById("sensors").appendChild(elem);
   }
   loading(false);
 }

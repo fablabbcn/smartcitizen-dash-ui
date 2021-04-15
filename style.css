@@ -97,7 +97,7 @@ body:not(.isLoading) .loading {
 }
 .list > li {
   padding: var(--size-md);
-  margin-bottom: var(--size-xl);
+  margin-bottom: var(--size-sm);
   background-color: var(--body-color);
   border-radius: var(--size-sm);
   box-shadow: 0 0 var(--size-md) var(--color-darkgray);
@@ -116,8 +116,12 @@ body:not(.isLoading) .loading {
   opacity: var(--opacity);
 }
 .list .name {
+  font-size: var(--size-lg);
   color: var(--action-color);
   margin-bottom: var(--size-xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .list .id {
   font-size: var(--size-sm);
@@ -148,6 +152,27 @@ body:not(.isLoading) .loading {
   border: var(--border-sm) solid var(--base-color);
   padding: var(--size-xxs) var(--size-xs);
 }
+/* detail */
+.detail li h2,
+.detail li h3 {
+  text-align: center;
+}
+.detail li h3 {
+  font-size: var(--size-md);
+  margin-bottom: var(--size-lg);
+}
+.detail .more {
+  display: block;
+  background-color: var(--action-color);
+  color: var(--body-color);
+  padding: var(--size-sm);
+  margin-top: var(--size-lg);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: var(--size-sm);
+  text-transform: uppercase;
+  text-align: center;
+}
 
 /* uPlot */
 .chart {margin-bottom: 50px;}
@@ -165,4 +190,22 @@ body:not(.isLoading) .loading {
 .uplot canvas {
   position: absolute;
   top: 0; left: 0;
+}
+
+
+@media screen and (min-width: 870px) {
+  .list {
+    margin-left: calc(var(--size-sm) * -1);
+  }
+  .list > li {
+    display: inline-block;
+    vertical-align: top;
+    margin-left: var(--size-sm);
+  }
+  .index .list > li {
+    width: calc(100% / 3 - var(--size-sm));
+  }
+  .detail .list > li {
+    width: calc(100% / 2 - var(--size-sm));
+  }
 }
