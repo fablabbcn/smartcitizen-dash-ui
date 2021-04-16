@@ -1,3 +1,5 @@
+// import settings from "./settings.js"
+
 let id;
 let tag;
 
@@ -295,6 +297,11 @@ function displaySensor(kit, sensor, i) {
   }
   loading(false);
 }
+
+// Settings
+// function settings() {
+//   console.log(settings);
+// }
 
 // Get URL parameters
 function urlParameters() {
