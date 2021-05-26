@@ -13,6 +13,7 @@ let tag;
 
 // Init
 function dashboardInit() {
+  document.title = settings.title;
   urlParameters();
   interface();
   loading(true);
@@ -28,6 +29,11 @@ function dashboardInit() {
     getKits();
   }
 }
+
+// Update
+// function dashboardUpdate() {
+//   console.log("hello");
+// }
 
 // API get kits
 function getKits(filterType = null, filterValue = null) {
@@ -109,7 +115,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
   elemTitle.id = "title";
   let titleComplement;
   filterType ? titleComplement = ": " + filterValue : titleComplement = "";
-  elemTitle.innerHTML = `Smart Citizen Dashboard${titleComplement}`;
+  elemTitle.innerHTML = settings.title + titleComplement;
   document.getElementById("main").appendChild(elemTitle);
   // Display subtitle
   const elemSubtitle = document.createElement("h2");
@@ -121,12 +127,14 @@ function displayKits(kits, filterType = null, filterValue = null) {
   elemParent.id = "kitsList";
   document.getElementById("main").appendChild(elemParent);
   // Display search
-  const searchInput = document.createElement("input");
-  searchInput.type = "text";
-  searchInput.placeholder = "filter";
-  searchInput.classList.add("fuzzy-search");
-  searchInput.id = "searchInput";
-  elemParent.appendChild(searchInput);
+  if (settings.filter.search) {
+    const searchInput = document.createElement("input");
+    searchInput.type = "text";
+    searchInput.placeholder = "filter";
+    searchInput.classList.add("fuzzy-search");
+    searchInput.id = "searchInput";
+    elemParent.appendChild(searchInput);
+  }
   // Display list
   const elemList = document.createElement("ul");
   elemList.classList.add("list");
@@ -224,7 +232,7 @@ function displayKit(kit) {
   // title
   const elemTitle = document.createElement("h1");
   elemTitle.id = "title";
-  elemTitle.innerHTML = `Smart Citizen Dashboard`;
+  elemTitle.innerHTML = settings.title;
   document.getElementById("main").appendChild(elemTitle);
   // subtitle
   const elemSubtitle = document.createElement("h2");
@@ -296,11 +304,6 @@ function displaySensor(kit, sensor, i) {
   loading(false);
 }
 
-// Settings
-// function settings() {
-//   console.log(settings);
-// }
-
 // Get URL parameters
 function urlParameters() {
   const url = new URL(window.location.href);
@@ -309,6 +312,21 @@ function urlParameters() {
   params.has("tag") === true ? (tag = params.get("tag")) : (tag = null);
   params.has("city") === true ? (city = params.get("city")) : (city = null);
   params.has("user") === true ? (user = params.get("user")) : (user = null);
+  /*console.log(settings.filter.type);
+  if (settings.filter.type) {
+    let type = settings.filter.type;
+    if (type === "tag") {
+
+    } else if (type === "user") {
+
+    } else if (type === "city") {
+
+    } else {
+      tag = null;
+      user = null;
+      city = null;
+    }
+  }*/
 }
 
 // Add url parameter

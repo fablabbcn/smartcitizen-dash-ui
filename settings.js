@@ -1,8 +1,7 @@
 let settings = {
   title: "Smart Citizen Dashboard",
   logo: "",
-  showFilter: true,
-  filter: {show: true, type: "", value: ""},
+  filter: {search: true, type: "tag", value: "Inside"},
   primarySensor: { id : 56, threshold : 30 },
   indexView: ["name", "id", "city", "username", "tags", "battery", "updated"],
   sensors: [
