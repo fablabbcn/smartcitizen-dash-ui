@@ -1,5 +1,3 @@
-console.log(title)
-
 // Load
 window.onload = function () {
   dashboardInit();
