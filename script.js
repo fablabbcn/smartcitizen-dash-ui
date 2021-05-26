@@ -1,7 +1,4 @@
-// import settings from "./settings.js"
-
-let id;
-let tag;
+console.log(title)
 
 // Load
 window.onload = function () {
@@ -12,6 +9,9 @@ window.onload = function () {
 // setInterval(function () {
 //   dashboardUpdate();
 // }, 1000);
+
+let id;
+let tag;
 
 // Init
 function dashboardInit() {
