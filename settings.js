@@ -2,13 +2,13 @@ let settings = {
   title: "Smart Citizen Dashboard",
   logo: "",
   filter: {search: true, type: "tag", value: "Inside"},
-  primarySensor: { id : 56, threshold : 30 },
+  primarySensor: { id : 56, threshold : [20, 40] },
   indexView: ["name", "id", "city", "username", "tags", "battery", "updated"],
   sensors: [
-    { id: 56, threshold: 30 },
-    { id: 56, threshold: 30 },
-    { id: 56, threshold: 30 },
-    { id: 56, threshold: 30 }
+    { id: 56, threshold: [20, 40] },
+    { id: 56, threshold: [40, 20] },
+    { id: 56, threshold: [20, 40] },
+    { id: 56, threshold: [40, 20] }
   ],
   styles: {
     colorBase: "#000000",

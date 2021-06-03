@@ -120,7 +120,7 @@ body:not(.isLoading) .loading {
 .list .name {
   font-size: var(--size-lg);
   color: var(--action-color);
-  margin-bottom: var(--size-md);
+  margin-bottom: auto;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -131,8 +131,9 @@ body:not(.isLoading) .loading {
   margin-left: var(--size-xs);
 }
 .list .user,
-.list .city {
-  margin-bottom: var(--size-xs);
+.list .city,
+.list .tags {
+  margin-top: var(--size-sm);
 }
 .list .update {
   font-size: var(--size-xs);
@@ -155,11 +156,7 @@ body:not(.isLoading) .loading {
   border: var(--border-sm) solid var(--base-color);
   padding: var(--size-xxs) var(--size-xs);
 }
-/* .list .user,
-.list .city {
-  display: inline-block;
-  margin-right: var(--size-sm);
-} */
+
 /* detail */
 .detail li h2,
 .detail li h3 {
@@ -204,10 +201,12 @@ body:not(.isLoading) .loading {
 @media screen and (min-width: 870px) {
   .list {
     margin-left: calc(var(--size-sm) * -1);
+    display: flex;
+    flex-wrap: wrap;
   }
   .list > li {
-    display: inline-block;
-    vertical-align: top;
+    display: flex;
+    flex-direction: column;
     margin-left: var(--size-sm);
   }
   .index .list > li {

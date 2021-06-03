@@ -8,6 +8,9 @@ window.onload = function () {
 //   dashboardUpdate();
 // }, 1000);
 
+// Cache
+let isCacheSupported = 'caches' in window;
+
 let id;
 let tag;
 

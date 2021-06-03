@@ -13,4 +13,3 @@ An easily deployable dashboard to display data from [Smart Citizen](https://smar
 - [ ] User settings
 - [ ] Live refresh
 - [ ] Styles for small and large screens
-
