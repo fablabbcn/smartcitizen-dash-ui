@@ -31,9 +31,7 @@ function getKits(filterType = null, filterValue = null) {
   const kitsUrl = "https://api.smartcitizen.me/v0/devices/world_map";
   // Add to cache
   caches.open(cacheName).then(cache => {
-    cache.add(kitsUrl).then(() => {
-      console.log("Kits data cached");
-    });
+    cache.add(kitsUrl).then(() => {});
   });
   // Retrieve from cache
   caches.open(cacheName).then(cache => {
