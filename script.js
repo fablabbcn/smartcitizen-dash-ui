@@ -104,7 +104,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
   }
   // Sort active and inactive kits
   for (let kit of kitsFiltered) {
-    let lastUpdate = new Date(kit.updated_at);
+    let lastUpdate = new Date(kit.last_reading_at);
     let dateDifferenceMinutes = (dateNow.getTime() - lastUpdate.getTime()) / (1000 * 3600 * 24);
     dateDifferenceMinutes < 1 ? kitsActive.push(kit) : kitsInactive.push(kit);
   }
@@ -207,7 +207,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
       // update
       const elemUpdated = document.createElement("p");
       elemUpdated.classList.add("update");
-      elemUpdated.innerHTML = "last update: " + new Date(currentKit[i].updated_at).toLocaleString("en-GB");
+      elemUpdated.innerHTML = "last update: " + new Date(currentKit[i].last_reading_at).toLocaleString("en-GB");
       elem.appendChild(elemUpdated);
     }
     x++;
