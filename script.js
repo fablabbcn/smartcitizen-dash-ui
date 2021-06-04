@@ -3,14 +3,6 @@ window.onload = function () {
   dashboardInit();
 };
 
-// Refresh
-// setInterval(function () {
-//   dashboardUpdate();
-// }, 1000);
-
-// Cache
-let isCacheSupported = 'caches' in window;
-
 let id;
 let tag;
 
@@ -33,36 +25,41 @@ function dashboardInit() {
   }
 }
 
-// Update
-// function dashboardUpdate() {
-//   console.log("hello");
-// }
-
 // API get kits
 function getKits(filterType = null, filterValue = null) {
+  const cacheName = "dashboardCache";
   const kitsUrl = "https://api.smartcitizen.me/v0/devices/world_map";
-  https: fetch(kitsUrl)
-    .then((res) => {
-      if (res.status == 429) alertUpdate(id, "tooManyRequests");
-      return res.json();
+  // Add to cache
+  caches.open(cacheName).then(cache => {
+    cache.add(kitsUrl).then(() => {
+      console.log("Kits data cached");
+    });
+  });
+  // Retrieve from cache
+  caches.open(cacheName).then(cache => {
+    cache.match(kitsUrl)
+    .then((response) => {
+      if (response.status == 429) alertUpdate(id, "tooManyRequests");
+      return response.json();
     })
     .then((kits) => {
       displayKits(kits, filterType, filterValue);
     });
+  });
 }
 
 // API get kit
 function getKit(id) {
   const kitUrl = `https://api.smartcitizen.me/v0/devices/${id}`;
   https: fetch(kitUrl)
-    .then((res) => {
-      if (res.status == 429) alertUpdate(id, "tooManyRequests");
-      return res.json();
-    })
-    .then((kit) => {
-      displayKit(kit);
-      getKitData(kit);
-    });
+  .then((res) => {
+    if (res.status == 429) alertUpdate(id, "tooManyRequests");
+    return res.json();
+  })
+  .then((kit) => {
+    displayKit(kit);
+    getKitData(kit);
+  });
 }
 
 // Api get kit data
@@ -73,12 +70,12 @@ function getKitData(kit) {
   for (let i = 0; kit.data.sensors.length > i; i++) {
     const sensorUrl = `https://api.smartcitizen.me/v0/devices/${kit.id}/readings?sensor_id=${kit.data.sensors[i].id}&rollup=1h&from=${then}&to=${today}`;
     https: fetch(sensorUrl)
-      .then((res) => {
-        return res.json();
-      })
-      .then((sensor) => {
-        displaySensor(kit, sensor, i);
-      });
+    .then((res) => {
+      return res.json();
+    })
+    .then((sensor) => {
+      displaySensor(kit, sensor, i);
+    });
   }
 }
 
@@ -124,7 +121,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
   const elemSubtitle = document.createElement("h2");
   elemSubtitle.id = "subtitle";
   elemSubtitle.innerHTML = `${kitsActive.length} active kits today, of a total of ${kitsFiltered.length}`;
-  elemTitle.parentNode.insertBefore(elemSubtitle, elemTitle.nextSibling);
+  document.getElementById("main").appendChild(elemSubtitle);
   // Display active and inactive kits
   const elemParent = document.createElement("section");
   elemParent.id = "kitsList";
@@ -143,7 +140,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
   elemList.classList.add("list");
   elemParent.appendChild(elemList);
   let x = 0;
-  while (x < 2) {
+  while (x < 1) {
     let currentKit;
     let kitStatus;
     if (x === 0) {
@@ -213,12 +210,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
       const elemUpdated = document.createElement("p");
       elemUpdated.classList.add("update");
       elemUpdated.innerHTML = "last update: " + new Date(currentKit[i].updated_at).toLocaleString("en-GB");
-      // reset
-      document.getElementById("reset").innerText = "Reset filter";
-      // classes
       elem.appendChild(elemUpdated);
-      document.getElementById("main").classList.remove("detail");
-      document.getElementById("main").classList.add("index");
     }
     x++;
   }
@@ -226,6 +218,12 @@ function displayKits(kits, filterType = null, filterValue = null) {
   const kitsList = new List('kitsList', { 
     valueNames: ['name', 'city', 'tag', 'update']
   });
+  
+  // reset
+  document.getElementById("reset").innerText = "Reset filter";
+  // classes
+  document.getElementById("main").classList.remove("detail");
+  document.getElementById("main").classList.add("index");
   loading(false);
 }
 
@@ -315,21 +313,6 @@ function urlParameters() {
   params.has("tag") === true ? (tag = params.get("tag")) : (tag = null);
   params.has("city") === true ? (city = params.get("city")) : (city = null);
   params.has("user") === true ? (user = params.get("user")) : (user = null);
-  /*console.log(settings.filter.type);
-  if (settings.filter.type) {
-    let type = settings.filter.type;
-    if (type === "tag") {
-
-    } else if (type === "user") {
-
-    } else if (type === "city") {
-
-    } else {
-      tag = null;
-      user = null;
-      city = null;
-    }
-  }*/
 }
 
 // Add url parameter
@@ -357,11 +340,11 @@ function alertUpdate(id, status) {
   let alert;
   switch (status) {
     case "tooManyRequests":
-      message = "Too many requests, please wait 10 seconds before trying again.";
-      break;
+    message = "Too many requests, please wait 10 seconds before trying again.";
+    break;
     default:
-      message = "";
-      break;
+    message = "";
+    break;
   }
   document.getElementById("alert").innerText = alert;
 }
