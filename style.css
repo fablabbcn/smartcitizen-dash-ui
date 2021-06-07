@@ -91,12 +91,14 @@ body:not(.isLoading) .loading {
 /* Search */
 .fuzzy-search {
   width: 100%;
-  margin-bottom: var(--size-lg);
+  padding: var(--size-xs);
+  border: none;
 }
 
 /* List */
 .list {
   list-style: none;
+  margin-top: var(--size-xl);
 }
 .list > li {
   padding: var(--size-md);

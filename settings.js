@@ -1,6 +1,6 @@
 // let settings = {
 //   title: "Smart Citizen Dashboard",
-//   logo: "",
+//   logo: "logo-sc.svg",
 //   filter: {search: true, type: "tag", value: "Inside"},
 //   primarySensor: { id : 56, threshold : [20, 40] },
 //   indexView: ["name", "id", "city", "username", "tags", "battery", "updated"],
@@ -20,8 +20,8 @@
 
 let settings = {
   title: "CO-MIDA Dashboard",
-  logo: "logo-sc.svg",
-  filter: { search: true, type: "tag", value: "Inside" },
+  logo: "logo-random.svg",
+  filter: { search: false, type: "tag", value: "Inside" },
   primarySensor: { id: 56, threshold: [20, 40] },
   indexView: ["name", "id", "city", "username", "tags", "battery", "updated"],
   sensors: [
