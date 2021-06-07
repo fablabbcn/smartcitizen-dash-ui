@@ -102,9 +102,6 @@ body:not(.isLoading) .loading {
   right: var(--size-sm);
   z-index: 1;
 }
-.index.simple .reset {
-  display: none;
-}
 
 /* Titles */
 #title,
@@ -228,6 +225,17 @@ body:not(.isLoading) .loading {
   position: absolute;
   top: 0; left: 0;
 }
+
+/* Simple */
+.index.simple .reset {
+  display: none;
+}
+/* .index.simple .user,
+.index.simple .city,
+.index.simple .tag {
+  pointer-events: none;
+  cursor: default;
+} */
 
 
 @media screen and (min-width: 870px) {

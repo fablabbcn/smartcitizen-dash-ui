@@ -21,7 +21,7 @@
 let settings = {
   title: "CO-MIDA Dashboard",
   logo: "logo-random.svg",
-  filter: { search: false, type: "tag", value: "Inside" },
+  filter: { search: false, type: "user", value: "IAAC-Cristian_Rizzuti" },
   primarySensor: { id: 56, threshold: [20, 40] },
   indexView: ["name", "id", "city", "username", "tags", "battery", "updated"],
   sensors: [

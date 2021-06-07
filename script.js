@@ -5,6 +5,7 @@ window.onload = function () {
 
 let id;
 let tag;
+let isFirstLoad = true;
 
 // Init
 function dashboardInit() {
@@ -314,10 +315,19 @@ function displaySensor(kit, sensor, i) {
 function urlParameters() {
   const url = new URL(window.location.href);
   const params = url.searchParams;
-  params.has("id") === true ? (id = params.get("id")) : (id = null);
-  params.has("tag") === true ? (tag = params.get("tag")) : (tag = null);
-  params.has("city") === true ? (city = params.get("city")) : (city = null);
-  params.has("user") === true ? (user = params.get("user")) : (user = null);
+  if (isFirstLoad) {
+    if ((settings.filter.type) && (settings.filter.value)) {
+      settings.filter.type === "tag" ? (tag = settings.filter.value) : (tag = null);
+      settings.filter.type === "city" ? (city = settings.filter.value) : (city = null);
+      settings.filter.type === "user" ? (user = settings.filter.value) : (user = null);
+    }
+    isFirstLoad = false;
+  } else {
+    params.has("id") === true ? (id = params.get("id")) : (id = null);
+    params.has("tag") === true ? (tag = params.get("tag")) : (tag = null);
+    params.has("city") === true ? (city = params.get("city")) : (city = null);
+    params.has("user") === true ? (user = params.get("user")) : (user = null);
+  }
 }
 
 // Add url parameter
@@ -361,7 +371,7 @@ function interface() {
   }
   // reset
   document.getElementById("reset").onclick = function () {
-    urlAddParameter(null);
+    ((settings.filter.type) && (settings.filter.value)) ? urlAddParameter(settings.filter.type, settings.filter.value) : urlAddParameter(null);
     dashboardInit();
   };
   // logo
@@ -372,7 +382,7 @@ function interface() {
     document.body.prepend(logoImage);
   }
   document.getElementById("logo").onclick = function () {
-    urlAddParameter(null);
+    ((settings.filter.type) && (settings.filter.value)) ? urlAddParameter(settings.filter.type, settings.filter.value) : urlAddParameter(null);
     dashboardInit();
   };
 }
