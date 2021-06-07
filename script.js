@@ -160,6 +160,41 @@ function displayKits(kits, filterType = null, filterValue = null) {
       const elem = document.createElement("li");
       elem.classList.add(kitStatus);
       elemList.appendChild(elem);
+
+      for (let i = 0; i < settings.indexView.length; i++) {
+        displayIndexElement(settings.indexView[i]);
+      }
+
+      function displayIndexElement(elem) {
+        switch (elem) {
+          case "name":
+            console.log("name");
+          break;
+          case "id":
+            console.log("id");
+          break;
+          case "city":
+            console.log("city");
+          break;
+          case "user":
+            console.log("city");
+          break;
+          case "tags":
+            console.log("tags");
+          break;
+          case "battery":
+            console.log("battery");
+          break;
+          case "updated":
+            console.log("updated");
+          break;
+          default:
+            console.log("yoyo");
+          break;
+        }
+      }
+
+
       // title & id
       const elemTitle = document.createElement("h2");
       const elemId = document.createElement("span");
