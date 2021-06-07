@@ -146,7 +146,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
   elemList.classList.add("list");
   elemParent.appendChild(elemList);
   let x = 0;
-  while (x < 1) {
+  while (x <= 1) {
     let currentKit;
     let kitStatus;
     if (x === 0) {
@@ -350,14 +350,20 @@ function displaySensor(kit, sensor, i) {
 function urlParameters() {
   const url = new URL(window.location.href);
   const params = url.searchParams;
+  
   if (isFirstLoad) {
     if ((settings.filter.type) && (settings.filter.value)) {
       settings.filter.type === "tag" ? (tag = settings.filter.value) : (tag = null);
       settings.filter.type === "city" ? (city = settings.filter.value) : (city = null);
       settings.filter.type === "user" ? (user = settings.filter.value) : (user = null);
+    } else {
+      urlNatural();
     }
     isFirstLoad = false;
   } else {
+    urlNatural();
+  }
+  function urlNatural() {
     params.has("id") === true ? (id = params.get("id")) : (id = null);
     params.has("tag") === true ? (tag = params.get("tag")) : (tag = null);
     params.has("city") === true ? (city = params.get("city")) : (city = null);
