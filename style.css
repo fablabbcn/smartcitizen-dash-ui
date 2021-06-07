@@ -79,6 +79,33 @@ body:not(.isLoading) .loading {
   opacity: var(--opacity);
 }
 
+/* Button */
+.button {
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  font-size: var(--size-sm);
+  background-color: var(--base-color);
+  color: var(--body-color);
+  padding: var(--size-xs);
+  border-radius: var(--size-xxs);
+  display: inline-block;
+  cursor: pointer;
+}
+.button:hover {
+  opacity: var(--opacity);
+}
+
+/* Reset */
+.reset {
+  position: fixed;
+  top: var(--size-sm);
+  right: var(--size-sm);
+  z-index: 1;
+}
+.index.simple .reset {
+  display: none;
+}
+
 /* Titles */
 #title,
 #subtitle {

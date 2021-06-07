@@ -224,9 +224,11 @@ function displayKits(kits, filterType = null, filterValue = null) {
     valueNames: ['name', 'city', 'tag', 'update']
   });
   
+  // reset
+  document.getElementById("reset").innerText = "Reset filter";
   // classes
-  document.getElementById("main").classList.remove("detail");
-  document.getElementById("main").classList.add("index");
+  document.body.classList.remove("detail");
+  document.body.classList.add("index");
   loading(false);
 }
 
@@ -255,9 +257,11 @@ function displayKit(kit) {
   elemLink.target = "_blank";
   elemLink.classList.add('more');
   document.getElementById("main").appendChild(elemLink);
+  // reset
+  document.getElementById("reset").innerText = "Back to index";
   // classes
-  document.getElementById("main").classList.remove("index");
-  document.getElementById("main").classList.add("detail");
+  document.body.classList.remove("index");
+  document.body.classList.add("detail");
 }
 
 // Display sensor
@@ -352,6 +356,14 @@ function alertUpdate(id, status) {
 
 // Interface elements
 function interface() {
+  if (!settings.filter.search) {
+    document.body.classList.add("simple");
+  }
+  // reset
+  document.getElementById("reset").onclick = function () {
+    urlAddParameter(null);
+    dashboardInit();
+  };
   // logo
   if (! document.getElementById("logo")) {
     const logoImage = document.createElement("img");
@@ -359,10 +371,8 @@ function interface() {
     logoImage.id = "logo"
     document.body.prepend(logoImage);
   }
-  // reset
   document.getElementById("logo").onclick = function () {
     urlAddParameter(null);
     dashboardInit();
   };
-
 }
