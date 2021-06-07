@@ -26,17 +26,10 @@ function dashboardInit() {
 }
 
 // Websockets update
-const socket = io.connect("wss://ws.smartcitizen.me", {reconnect: true});
-console.log(socket);
+// const socket = io.connect("wss://ws.smartcitizen.me", {reconnect: true});
 
-
-socket.on("connect", () => {
-  console.log(socket.id);
-});
-
-// socket.on("data", () => {
-//   console.log('data received')
-//   console.log(socket.id);
+// socket.on("data-received", () => {
+//   console.log(socket.json.io);
 // });
 
 
