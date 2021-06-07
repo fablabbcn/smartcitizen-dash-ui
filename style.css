@@ -37,12 +37,11 @@ body {
   background-color: var(--color-lightgray);
 }
 .main {
-  margin-top: var(--size-xxl);
   padding: var(--size-lg) var(--size-md);
 }
 
-/* Reset and loading */
-.reset, .loading {
+/* Loading */
+.loading {
   position: fixed;
   top: 0;
   left: 0;
@@ -53,20 +52,6 @@ body {
   text-transform: uppercase;
   font-family: var(--font-mono);
   font-size: var(--size-sm);
-}
-
-/* Reset */
-.reset {
-  cursor: pointer;
-  background-color: var(--action-color);
-  color: var(--body-color);
-}
-.reset:hover {
-  opacity: var(--opacity);
-}
-
-/* Loading */
-.loading {
   background-color: var(--base-color);
   color: var(--body-color);
   padding-top: 45vh;
@@ -80,7 +65,25 @@ body:not(.isLoading) .loading {
   display: none;
 }
 
+/* Logo */
+#logo {
+  display: block;
+  max-width: 80px;
+  width: 33%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: var(--size-xl);
+  cursor: pointer;
+}
+#logo:hover {
+  opacity: var(--opacity);
+}
+
 /* Titles */
+#title,
+#subtitle {
+  text-align: center;
+}
 #subtitle {
   margin-bottom: var(--size-lg);
 }

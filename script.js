@@ -27,7 +27,6 @@ function dashboardInit() {
 
 // Websockets update
 // const socket = io.connect("wss://ws.smartcitizen.me", {reconnect: true});
-
 // socket.on("data-received", () => {
 //   console.log(socket.json.io);
 // });
@@ -225,8 +224,6 @@ function displayKits(kits, filterType = null, filterValue = null) {
     valueNames: ['name', 'city', 'tag', 'update']
   });
   
-  // reset
-  document.getElementById("reset").innerText = "Reset filter";
   // classes
   document.getElementById("main").classList.remove("detail");
   document.getElementById("main").classList.add("index");
@@ -258,8 +255,6 @@ function displayKit(kit) {
   elemLink.target = "_blank";
   elemLink.classList.add('more');
   document.getElementById("main").appendChild(elemLink);
-  // reset
-  document.getElementById("reset").innerText = "Back to index";
   // classes
   document.getElementById("main").classList.remove("index");
   document.getElementById("main").classList.add("detail");
@@ -357,9 +352,17 @@ function alertUpdate(id, status) {
 
 // Interface elements
 function interface() {
+  // logo
+  if (! document.getElementById("logo")) {
+    const logoImage = document.createElement("img");
+    logoImage.src  = "assets/" + settings.logo;
+    logoImage.id = "logo"
+    document.body.prepend(logoImage);
+  }
   // reset
-  document.getElementById("reset").onclick = function () {
+  document.getElementById("logo").onclick = function () {
     urlAddParameter(null);
     dashboardInit();
   };
+
 }
