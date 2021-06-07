@@ -25,6 +25,21 @@ function dashboardInit() {
   }
 }
 
+// Websockets update
+const socket = io.connect("wss://ws.smartcitizen.me", {reconnect: true});
+console.log(socket);
+
+
+socket.on("connect", () => {
+  console.log(socket.id);
+});
+
+// socket.on("data", () => {
+//   console.log('data received')
+//   console.log(socket.id);
+// });
+
+
 // API get kits
 function getKits(filterType = null, filterValue = null) {
   const cacheName = "dashboardCache";
