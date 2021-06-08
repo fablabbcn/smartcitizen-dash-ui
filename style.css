@@ -147,7 +147,7 @@ body:not(.isLoading) .loading {
   opacity: var(--opacity);
 }
 .list .name {
-  font-size: var(--size-lg);
+  font-size: var(--size-md);
   color: var(--action-color);
   margin-bottom: auto;
   white-space: nowrap;
@@ -158,7 +158,8 @@ body:not(.isLoading) .loading {
 .list .user,
 .list .city,
 .list .update {
-  margin-top: var(--size-sm);
+  margin-top: var(--size-xs);
+  font-size: var(--size-sm);
 }
 .list .update,
 .list .id {
@@ -166,13 +167,8 @@ body:not(.isLoading) .loading {
   font-family: var(--font-mono);
   text-transform: uppercase;
 }
-.list p {
-  display: inline-block;
-}
-.list p:not(:first-of-type):before {
-  content: "/";
-  display: inline-block;
-  margin: 0 var(--size-xxs);
+.list p:not(:first-of-type) {
+  margin-top: 0;
 }
 .list .tags {
   list-style: none;
