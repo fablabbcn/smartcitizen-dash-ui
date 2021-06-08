@@ -159,99 +159,85 @@ function displayKits(kits, filterType = null, filterValue = null) {
     for (let i = 0; i < currentKit.length; i++) {
       const elem = document.createElement("li");
       elem.classList.add(kitStatus);
+      elem.id = currentKit[i].id;
       elemList.appendChild(elem);
 
       for (let i = 0; i < settings.indexView.length; i++) {
-        displayIndexElement(settings.indexView[i]);
+        displayIndexElement(settings.indexView[i], elem);
       }
 
-      function displayIndexElement(elem) {
-        switch (elem) {
+      function displayIndexElement(elemSettings, elemHtml) {
+        switch (elemSettings) {
           case "name":
-            console.log("name");
+            const elemName = document.createElement("h2");
+            elemName.innerHTML = currentKit[i].name;
+            elemName.classList.add("name");
+            elemName.onclick = function () {
+              urlAddParameter("id", currentKit[i].id);
+              dashboardInit();
+            };
+            elemHtml.appendChild(elemName);
           break;
           case "id":
-            console.log("id");
+            const elemId = document.createElement("span");
+            elemId.innerHTML = currentKit[i].id;
+            elemId.classList.add("id");
+            elemHtml.appendChild(elemId);
           break;
           case "city":
-            console.log("city");
+            if (currentKit[i].city) {
+              const elemCity = document.createElement("h4");
+              elemCity.innerHTML = "📍 " + currentKit[i].city + " (" + currentKit[i].country_code + ")";
+              elemCity.classList.add("city");
+              elemHtml.appendChild(elemCity);
+              elemCity.onclick = function () {
+                urlAddParameter("city", currentKit[i].city);
+                dashboardInit();
+              };
+            }
           break;
           case "user":
-            console.log("city");
+            if (currentKit[i].owner_username) {
+              const elemUser = document.createElement("h4");
+              elemUser.innerHTML = "👤 " + currentKit[i].owner_username;
+              elemUser.classList.add("user");
+              elemHtml.appendChild(elemUser);
+              elemUser.onclick = function () {
+                urlAddParameter("user", currentKit[i].owner_username);
+                dashboardInit();
+              };
+            }
           break;
           case "tags":
-            console.log("tags");
+            if (currentKit[i].user_tags.length > 0) {
+              const elemTags = document.createElement("div");
+              elemHtml.appendChild(elemTags);
+              elemTags.classList.add("tags");
+              for (let j = 0; j < currentKit[i].user_tags.length; j++) {
+                const elemTag = document.createElement("span");
+                elemTag.innerHTML = currentKit[i].user_tags[j];
+                elemTag.classList.add('tag');
+                elemTag.onclick = function () {
+                  urlAddParameter("tag", currentKit[i].user_tags[j]);
+                  dashboardInit();
+                };
+                elemTags.appendChild(elemTag);
+              }
+            }
           break;
-          case "battery":
-            console.log("battery");
-          break;
-          case "updated":
-            console.log("updated");
+          case "last_update":
+            // update
+            const elemUpdated = document.createElement("p");
+            elemUpdated.classList.add("update");
+            elemUpdated.innerHTML = "last update: " + new Date(currentKit[i].last_reading_at).toLocaleString("en-GB");
+            elemHtml.appendChild(elemUpdated);
           break;
           default:
             console.log("yoyo");
           break;
         }
-      }
-
-
-      // title & id
-      const elemTitle = document.createElement("h2");
-      const elemId = document.createElement("span");
-      elem.id = currentKit[i].id;
-      elemTitle.innerHTML = currentKit[i].name;
-      elemId.innerHTML = currentKit[i].id;
-      elemId.classList.add("id");
-      elemTitle.classList.add("name");
-      elemTitle.onclick = function () {
-        urlAddParameter("id", currentKit[i].id);
-        dashboardInit();
-      };
-      elem.appendChild(elemTitle);
-      elemTitle.appendChild(elemId);
-      // city
-      if (currentKit[i].city) {
-        const elemCity = document.createElement("h4");
-        elemCity.innerHTML = "📍 " + currentKit[i].city + " (" + currentKit[i].country_code + ")";
-        elemCity.classList.add("city");
-        elem.appendChild(elemCity);
-        elemCity.onclick = function () {
-          urlAddParameter("city", currentKit[i].city);
-          dashboardInit();
-        };
-      }
-      // user
-      if (currentKit[i].owner_username) {
-        const elemUser = document.createElement("h4");
-        elemUser.innerHTML = "👤 " + currentKit[i].owner_username;
-        elemUser.classList.add("user");
-        elem.appendChild(elemUser);
-        elemUser.onclick = function () {
-          urlAddParameter("user", currentKit[i].owner_username);
-          dashboardInit();
-        };
-      }
-      // tags
-      if (currentKit[i].user_tags.length > 0) {
-        const elemTags = document.createElement("div");
-        elem.appendChild(elemTags);
-        elemTags.classList.add("tags");
-        for (let j = 0; j < currentKit[i].user_tags.length; j++) {
-          const elemTag = document.createElement("span");
-          elemTag.innerHTML = currentKit[i].user_tags[j];
-          elemTag.classList.add('tag');
-          elemTag.onclick = function () {
-            urlAddParameter("tag", currentKit[i].user_tags[j]);
-            dashboardInit();
-          };
-          elemTags.appendChild(elemTag);
-        }
-      }
-      // update
-      const elemUpdated = document.createElement("p");
-      elemUpdated.classList.add("update");
-      elemUpdated.innerHTML = "last update: " + new Date(currentKit[i].last_reading_at).toLocaleString("en-GB");
-      elem.appendChild(elemUpdated);
+      }      
+      
     }
     x++;
   }
