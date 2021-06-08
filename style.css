@@ -154,27 +154,32 @@ body:not(.isLoading) .loading {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.list .id {
-  font-size: var(--size-sm);
-  font-family: var(--font-mono);
-  margin-left: var(--size-xs);
-}
+.list .id,
 .list .user,
 .list .city,
-.list .tags {
+.list .update {
   margin-top: var(--size-sm);
 }
-.list .update {
+.list .update,
+.list .id {
   font-size: var(--size-xs);
   font-family: var(--font-mono);
-  margin-top: var(--size-sm);
   text-transform: uppercase;
+}
+.list p {
+  display: inline-block;
+}
+.list p:not(:first-of-type):before {
+  content: "/";
+  display: inline-block;
+  margin: 0 var(--size-xxs);
 }
 .list .tags {
   list-style: none;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  margin-top: var(--size-xs);
 }
 .list .tag {
   margin-top: var(--size-xs);

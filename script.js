@@ -179,8 +179,8 @@ function displayKits(kits, filterType = null, filterValue = null) {
             elemHtml.appendChild(elemName);
           break;
           case "id":
-            const elemId = document.createElement("span");
-            elemId.innerHTML = currentKit[i].id;
+            const elemId = document.createElement("p");
+            elemId.innerHTML = "id:" + currentKit[i].id;
             elemId.classList.add("id");
             elemHtml.appendChild(elemId);
           break;
