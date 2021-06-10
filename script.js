@@ -84,22 +84,23 @@ function getKitData(kit) {
 
 const alreadySeenIndex = {};
 let isFirstLoad = true;
+let kitsActiveTotal = 0;
 // Display kits (index)
 function displayKits(kits, filterType = null, filterValue = null) {
   // Empty main
   document.getElementById("main").innerHTML = "";
-
   // Check if already seen
   let filter = filterType + filterValue;
-  let kitsFiltered;
   const indexElem = document.createElement("article");
   if (filter in alreadySeenIndex) {
     // already seen
     indexHtml = alreadySeenIndex[filter];
   } else {
     // new request
-    kitsFiltered = filterKits();
-    indexHtml = buildInterfaceElements(kitsFiltered).outerHTML + buildList(kitsFiltered).outerHTML;
+    let {activeCounter, kitsFiltered} = filterKits();
+    indexHtml =
+      buildInterfaceElements(activeCounter, kitsFiltered).outerHTML +
+      buildList(kitsFiltered).outerHTML;
     alreadySeenIndex[filter] = indexHtml;
   }
   // reset button
@@ -113,6 +114,8 @@ function displayKits(kits, filterType = null, filterValue = null) {
   const kitsList = new List('kitsList', { 
     valueNames: ['name', 'city', 'tag', 'update']
   });
+  // Build interactions
+  buildInteractions()
   loading(false);
   
   // Build list
@@ -131,13 +134,8 @@ function displayKits(kits, filterType = null, filterValue = null) {
     }
     const listHtml = document.createElement("ul");
     listHtml.classList.add('list');
-    let dateNow = new Date();
     for (let kit of kitsFiltered) {
       const elem = document.createElement("li");
-      // Add 'is active' value
-      let lastReading = new Date(kit.last_reading_at);
-      let dateDifferenceMinutes = (dateNow.getTime() - lastReading.getTime()) / (1000 * 3600 * 60 * 24);
-      dateDifferenceMinutes < 30 ? (kit.isActive = true) : (kit.isActive = false);
       // Element attributes
       elem.id = kit.id;
       elem.classList.add(kit.isActive ? "active" : "inactive");
@@ -209,7 +207,18 @@ function displayKits(kits, filterType = null, filterValue = null) {
   // Filter kits
   function filterKits() {
     let kitsFiltered = [];
+    let activeCounter = 0;
+    let dateNow = new Date();
     for (let kit of kits) {
+      // Add 'is active' value
+      let lastReading = new Date(kit.last_reading_at);
+      let dateDifferenceMinutes = (dateNow.getTime() - lastReading.getTime()) / (1000 * 3600 * 60 * 24);
+      if (dateDifferenceMinutes < 30) {
+        kit.isActive = true;
+        activeCounter++;
+      } else {
+        kit.isActive = false;
+      }
       if (filterType != null) {
         if (filterType === "tag" && kit.user_tags.includes(filterValue)) {
           kitsFiltered.push(kit);
@@ -226,10 +235,10 @@ function displayKits(kits, filterType = null, filterValue = null) {
     kitsFiltered.sort(function(a,b){
       return new Date(b.last_reading_at) - new Date(a.last_reading_at);
     });
-    return kitsFiltered;
+    return {activeCounter, kitsFiltered}
   }
 
-  function buildInterfaceElements(kitsFiltered) {
+  function buildInterfaceElements(KitsActive,kitsFiltered) {
     if (kitsFiltered === undefined) {
       kitsFiltered = kits;
     }
@@ -244,10 +253,18 @@ function displayKits(kits, filterType = null, filterValue = null) {
     // Display subtitle
     const elemSubtitle = document.createElement("h2");
     elemSubtitle.id = "subtitle";
-    elemSubtitle.innerHTML = `${kits.length} active kits today, of a total of ${kitsFiltered.length}`;
+    elemSubtitle.innerHTML = `${KitsActive} active kits today, of a total of ${kitsFiltered.length}`;
     interfaceHeader.appendChild(elemSubtitle);
     // Return html
     return interfaceHeader;
+  }
+
+  function buildInteractions() {
+    console.log('ongoing')
+    // for (const item of document.querySelectorAll(".list li")) {
+    //   let id =  item.id;
+    //   console.log(id);
+    // }
   }
 
 }
