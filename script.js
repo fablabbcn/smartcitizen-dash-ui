@@ -91,27 +91,47 @@ function displayKits(kits, filterType = null, filterValue = null) {
 
   // Check if already seen
   let filter = filterType + filterValue;
-  let listHtml;
+  let kitsFiltered;
+  const indexElem = document.createElement("article");
   if (filter in alreadySeenIndex) {
     // already seen
-    listHtml = alreadySeenIndex[filter];
-    console.log("already seen");
+    indexHtml = alreadySeenIndex[filter];
   } else {
     // new request
-    listHtml = buildList();
-    alreadySeenIndex[filter] = listHtml;
-    console.log("new request");
+    kitsFiltered = filterKits();
+    indexHtml = buildInterfaceElements(kitsFiltered).outerHTML + buildList(kitsFiltered).outerHTML;
+    alreadySeenIndex[filter] = indexHtml;
   }
+  // reset button
+  document.getElementById("reset").innerText = "Reset filter";
+  // classes
+  document.body.classList.remove("detail");
+  document.body.classList.add("index");
   // Update html
-  document.getElementById("main").appendChild(listHtml);
+  document.getElementById("main").innerHTML = indexHtml;
+  // Search init
+  const kitsList = new List('kitsList', { 
+    valueNames: ['name', 'city', 'tag', 'update']
+  });
   loading(false);
-
+  
   // Build list
-  function buildList() {
+  function buildList(kitsFiltered) {
+    // Wrapper
+    const elemWrapper = document.createElement("section");
+    elemWrapper.id = "kitsList";
+    // Display search
+    if (settings.filter.search) {
+      const searchInput = document.createElement("input");
+      searchInput.type = "text";
+      searchInput.placeholder = "filter";
+      searchInput.classList.add("fuzzy-search");
+      searchInput.id = "searchInput";
+      elemWrapper.appendChild(searchInput);
+    }
     const listHtml = document.createElement("ul");
     listHtml.classList.add('list');
     let dateNow = new Date();
-    let kitsFiltered = filterKits();
     for (let kit of kitsFiltered) {
       const elem = document.createElement("li");
       // Add 'is active' value
@@ -181,8 +201,9 @@ function displayKits(kits, filterType = null, filterValue = null) {
         }
       }
       listHtml.appendChild(elem);
+      elemWrapper.append(listHtml);
     }
-    return listHtml; 
+    return elemWrapper; 
   }
 
   // Filter kits
@@ -201,15 +222,35 @@ function displayKits(kits, filterType = null, filterValue = null) {
         kitsFiltered.push(kit);
       }
     }
+    // Sort kits by date
+    kitsFiltered.sort(function(a,b){
+      return new Date(b.last_reading_at) - new Date(a.last_reading_at);
+    });
     return kitsFiltered;
   }
 
+  function buildInterfaceElements(kitsFiltered) {
+    if (kitsFiltered === undefined) {
+      kitsFiltered = kits;
+    }
+    let interfaceHeader = document.createElement("header");
+    // Display title
+    const elemTitle = document.createElement("h1");
+    elemTitle.id = "title";
+    let titleComplement;
+    filterType ? titleComplement = ": " + filterValue : titleComplement = "";
+    elemTitle.innerHTML = settings.title + titleComplement;
+    interfaceHeader.appendChild(elemTitle);
+    // Display subtitle
+    const elemSubtitle = document.createElement("h2");
+    elemSubtitle.id = "subtitle";
+    elemSubtitle.innerHTML = `${kits.length} active kits today, of a total of ${kitsFiltered.length}`;
+    interfaceHeader.appendChild(elemSubtitle);
+    // Return html
+    return interfaceHeader;
+  }
+
 }
-
-
-
-
-
 
 // Display kit (detail)
 function displayKit(kit) {
