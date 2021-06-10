@@ -82,113 +82,128 @@ function getKitData(kit) {
 }
 
 
-
-
-// Display kits (index)
 const alreadySeenIndex = {};
 let isFirstLoad = true;
+// Display kits (index)
 function displayKits(kits, filterType = null, filterValue = null) {
   // Empty main
   document.getElementById("main").innerHTML = "";
-  let filter = filterType + filterValue;
+
   // Check if already seen
+  let filter = filterType + filterValue;
+  let listHtml;
   if (filter in alreadySeenIndex) {
-    console.log('yo');    
+    // already seen
+    listHtml = alreadySeenIndex[filter];
+    console.log("already seen");
   } else {
-    alreadySeenIndex[filter] = "value1";
-    console.log(alreadySeenIndex);
+    // new request
+    listHtml = buildList();
+    alreadySeenIndex[filter] = listHtml;
+    console.log("new request");
+  }
+  // Update html
+  document.getElementById("main").appendChild(listHtml);
+  loading(false);
+
+  // Build list
+  function buildList() {
+    const listHtml = document.createElement("ul");
+    listHtml.classList.add('list');
+    let dateNow = new Date();
+    let kitsFiltered = filterKits();
+    for (let kit of kitsFiltered) {
+      const elem = document.createElement("li");
+      // Add 'is active' value
+      let lastReading = new Date(kit.last_reading_at);
+      let dateDifferenceMinutes = (dateNow.getTime() - lastReading.getTime()) / (1000 * 3600 * 60 * 24);
+      dateDifferenceMinutes < 30 ? (kit.isActive = true) : (kit.isActive = false);
+      // Element attributes
+      elem.id = kit.id;
+      elem.classList.add(kit.isActive ? "active" : "inactive");
+      // Add sub elements according to settings
+      for (let i = 0; i < settings.indexView.length; i++) {
+        displayIndexElement(settings.indexView[i], elem);
+      }
+      function displayIndexElement(elemSettings, elemHtml) {
+        switch (elemSettings) {
+          case "name":
+            const elemName = document.createElement("h2");
+            elemName.innerHTML = kit.name;
+            elemName.classList.add("name");
+            elemHtml.appendChild(elemName);
+          break;
+          case "id":
+            const elemId = document.createElement("p");
+            elemId.innerHTML = "id:" + kit.id;
+            elemId.classList.add("id");
+            elemHtml.appendChild(elemId);
+          break;
+          case "city":
+            if (kit.city) {
+              const elemCity = document.createElement("h4");
+              elemCity.innerHTML = "📍 " + kit.city + " (" + kit.country_code + ")";
+              elemCity.classList.add("city");
+              elemHtml.appendChild(elemCity);
+            }
+          break;
+          case "user":
+            if (kit.owner_username) {
+              const elemUser = document.createElement("h4");
+              elemUser.innerHTML = "👤 " + kit.owner_username;
+              elemUser.classList.add("user");
+              elemHtml.appendChild(elemUser);
+            }
+          break;
+          case "tags":
+            if (kit.user_tags.length > 0) {
+              const elemTags = document.createElement("div");
+              elemHtml.appendChild(elemTags);
+              elemTags.classList.add("tags");
+              for (let j = 0; j < kit.user_tags.length; j++) {
+                const elemTag = document.createElement("span");
+                elemTag.innerHTML = kit.user_tags[j];
+                elemTag.classList.add('tag');
+                elemTags.appendChild(elemTag);
+              }
+            }
+          break;
+          case "last_update":
+            // update
+            const elemUpdated = document.createElement("p");
+            elemUpdated.classList.add("update");
+            elemUpdated.innerHTML = "last update: " + new Date(kit.last_reading_at).toLocaleString("en-GB");
+            elemHtml.appendChild(elemUpdated);
+          break;
+          default:
+            console.log("yoyo");
+          break;
+        }
+      }
+      listHtml.appendChild(elem);
+    }
+    return listHtml; 
   }
 
   // Filter kits
-  let kitsFiltered = [];
-  for (let kit of kits) {
-    if (filterType != null) {
-      if (filterType === "tag" && kit.user_tags.includes(filterValue)) {
-        kitsFiltered.push(kit);
-      } else if (filterType === "city" && kit.city === filterValue) {
-        kitsFiltered.push(kit);
-      } else if (filterType === "user" && kit.owner_username === filterValue) {
+  function filterKits() {
+    let kitsFiltered = [];
+    for (let kit of kits) {
+      if (filterType != null) {
+        if (filterType === "tag" && kit.user_tags.includes(filterValue)) {
+          kitsFiltered.push(kit);
+        } else if (filterType === "city" && kit.city === filterValue) {
+          kitsFiltered.push(kit);
+        } else if (filterType === "user" && kit.owner_username === filterValue) {
+          kitsFiltered.push(kit);
+        }
+      } else {
         kitsFiltered.push(kit);
       }
-    } else {
-      kitsFiltered.push(kit);
     }
+    return kitsFiltered;
   }
-  // Build list
-  const listHtml = document.createElement("ul");
-  let dateNow = new Date();
-  for (let kit of kitsFiltered) {
-    const elem = document.createElement("li");
-    // Add 'is active' value
-    let lastReading = new Date(kit.last_reading_at);
-    let dateDifferenceMinutes = (dateNow.getTime() - lastReading.getTime()) / (1000 * 3600 * 60 * 24);
-    dateDifferenceMinutes < 30 ? (kit.isActive = true) : (kit.isActive = false);
-    // Element attributes
-    elem.id = kit.id;
-    elem.classList.add(kit.isActive ? "active" : "inactive");
-    // Add sub elements according to settings
-    for (let i = 0; i < settings.indexView.length; i++) {
-      displayIndexElement(settings.indexView[i], elem);
-    }
-    function displayIndexElement(elemSettings, elemHtml) {
-      switch (elemSettings) {
-        case "name":
-          const elemName = document.createElement("h2");
-          elemName.innerHTML = kit.name;
-          elemName.classList.add("name");
-          elemHtml.appendChild(elemName);
-        break;
-        case "id":
-          const elemId = document.createElement("p");
-          elemId.innerHTML = "id:" + kit.id;
-          elemId.classList.add("id");
-          elemHtml.appendChild(elemId);
-        break;
-        case "city":
-          if (kit.city) {
-            const elemCity = document.createElement("h4");
-            elemCity.innerHTML = "📍 " + kit.city + " (" + kit.country_code + ")";
-            elemCity.classList.add("city");
-            elemHtml.appendChild(elemCity);
-          }
-        break;
-        case "user":
-          if (kit.owner_username) {
-            const elemUser = document.createElement("h4");
-            elemUser.innerHTML = "👤 " + kit.owner_username;
-            elemUser.classList.add("user");
-            elemHtml.appendChild(elemUser);
-          }
-        break;
-        case "tags":
-          if (kit.user_tags.length > 0) {
-            const elemTags = document.createElement("div");
-            elemHtml.appendChild(elemTags);
-            elemTags.classList.add("tags");
-            for (let j = 0; j < kit.user_tags.length; j++) {
-              const elemTag = document.createElement("span");
-              elemTag.innerHTML = kit.user_tags[j];
-              elemTag.classList.add('tag');
-              elemTags.appendChild(elemTag);
-            }
-          }
-        break;
-        case "last_update":
-          // update
-          const elemUpdated = document.createElement("p");
-          elemUpdated.classList.add("update");
-          elemUpdated.innerHTML = "last update: " + new Date(kit.last_reading_at).toLocaleString("en-GB");
-          elemHtml.appendChild(elemUpdated);
-        break;
-        default:
-          console.log("yoyo");
-        break;
-      }
-    }
-    listHtml.appendChild(elem);
-  }
-  console.log(listHtml);
-  loading(false);
+
 }
 
 
