@@ -203,10 +203,11 @@ function displayKits(kits, filterType = null, filterValue = null) {
             elemHtml.appendChild(elemUpdated);
           break;
           default:
-            console.log("yoyo");
+            console.log("This element does not exist");
           break;
         }
       }
+      // Update html
       listHtml.appendChild(elem);
       elemWrapper.append(listHtml);
     }
