@@ -81,6 +81,20 @@ function getKitData(kit) {
   }
 }
 
+// API get sensor data
+function getLatestReadings(kitId, sensorId) {
+  const kitUrl = `https://api.smartcitizen.me/v0/devices/${kitId}`;
+  let kitContent;
+  https: fetch(kitUrl)
+  .then((res) => {
+    if (res.status == 429) alertUpdate(id, "tooManyRequests");
+    return res.json();
+  })
+  .then((kit) => {
+    primarySensor(kit);
+  });
+}
+
 
 const alreadySeenIndex = {};
 let isFirstLoad = true;
@@ -207,6 +221,10 @@ function displayKits(kits, filterType = null, filterValue = null) {
           break;
         }
       }
+      // Display primary sensor
+      if (settings.primarySensor != undefined && settings.primarySensor.id && kit.isActive) {
+        getLatestReadings(kit.id);
+      }
       // Update html
       listHtml.appendChild(elem);
       elemWrapper.append(listHtml);
@@ -306,7 +324,21 @@ function displayKits(kits, filterType = null, filterValue = null) {
       }
     }
   }
+}
 
+// Primary Sensor
+function primarySensor(kit) {
+  let sensorId = settings.primarySensor.id;
+  let sensorValue, sensorUnit, sensorDesc;
+  for (let key in kit.data.sensors) {
+    if (kit.data.sensors[key].id === sensorId) {
+      sensorValue = kit.data.sensors[key].value;
+      sensorUnit = kit.data.sensors[key].unit;
+      sensorDesc = kit.data.sensors[key].description;
+      let elem = document.getElementById(kit.id);
+      elem.innerHTML = `<h3 class="primarySensor">${sensorValue} ${sensorUnit} <span>${sensorDesc}</span></p>` + elem.innerHTML;
+    }
+  }
 }
 
 // Display kit (detail)

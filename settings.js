@@ -2,7 +2,7 @@ let settings = {
   title: "Smart Citizen Dashboard",
   logo: "logo-sc.svg",
   filter: { search: true, type: "", value: "" },
-  primarySensor: { id: 56, threshold: [20, 40] },
+  // primarySensor: { id: 56, threshold: [20, 40] },
   indexView: ["name", "city", "user", "tags", "id", "last_update"],
   sensors: [
     { id: 56, threshold: [20, 40] },
