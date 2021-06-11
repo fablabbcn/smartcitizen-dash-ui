@@ -162,6 +162,9 @@ function displayKits(kits, filterType = null, filterValue = null) {
               const elemCity = document.createElement("h4");
               elemCity.innerHTML = "📍 " + kit.city + " (" + kit.country_code + ")";
               elemCity.classList.add("city");
+              const attr = document.createAttribute("city");
+              attr.value = kit.city;
+              elemCity.setAttributeNode(attr);
               elemHtml.appendChild(elemCity);
             }
           break;
@@ -170,6 +173,9 @@ function displayKits(kits, filterType = null, filterValue = null) {
               const elemUser = document.createElement("h4");
               elemUser.innerHTML = "👤 " + kit.owner_username;
               elemUser.classList.add("user");
+              const attr = document.createAttribute("user");
+              attr.value = kit.owner_username;
+              elemUser.setAttributeNode(attr);
               elemHtml.appendChild(elemUser);
             }
           break;
@@ -182,6 +188,9 @@ function displayKits(kits, filterType = null, filterValue = null) {
                 const elemTag = document.createElement("span");
                 elemTag.innerHTML = kit.user_tags[j];
                 elemTag.classList.add('tag');
+                const attr = document.createAttribute("tag");
+                attr.value = kit.user_tags[j];
+                elemTag.setAttributeNode(attr);
                 elemTags.appendChild(elemTag);
               }
             }
@@ -212,23 +221,26 @@ function displayKits(kits, filterType = null, filterValue = null) {
     for (let kit of kits) {
       // Add 'is active' value
       let lastReading = new Date(kit.last_reading_at);
-      let dateDifferenceMinutes = (dateNow.getTime() - lastReading.getTime()) / (1000 * 3600 * 60 * 24);
+      let dateDifferenceMinutes = Math.abs(Math.round((dateNow.getTime() - lastReading.getTime()) / 1000 / 60));
       if (dateDifferenceMinutes < 30) {
         kit.isActive = true;
-        activeCounter++;
       } else {
         kit.isActive = false;
       }
       if (filterType != null) {
         if (filterType === "tag" && kit.user_tags.includes(filterValue)) {
           kitsFiltered.push(kit);
+          if (kit.isActive) {activeCounter++;}
         } else if (filterType === "city" && kit.city === filterValue) {
           kitsFiltered.push(kit);
+          if (kit.isActive) {activeCounter++;}
         } else if (filterType === "user" && kit.owner_username === filterValue) {
           kitsFiltered.push(kit);
+          if (kit.isActive) {activeCounter++;}
         }
       } else {
         kitsFiltered.push(kit);
+        if (kit.isActive) {activeCounter++;}
       }
     }
     // Sort kits by date
@@ -260,11 +272,38 @@ function displayKits(kits, filterType = null, filterValue = null) {
   }
 
   function buildInteractions() {
-    console.log('ongoing')
-    // for (const item of document.querySelectorAll(".list li")) {
-    //   let id =  item.id;
-    //   console.log(id);
-    // }
+    for (const item of document.querySelectorAll(".list li")) {
+      const childs = item.childNodes;
+      for (const child of childs) {
+        if (child.classList.contains("name")) {
+          child.onclick = function () {
+            urlAddParameter("id", item.id);
+            dashboardInit();
+          }
+        } else if (child.classList.contains("city")) {
+          child.onclick = function () {
+            attr = child.getAttribute("city");
+            urlAddParameter("city", attr);
+            dashboardInit();
+          }
+        } else if (child.classList.contains("user")) {
+          child.onclick = function () {
+            attr = child.getAttribute("user");
+            urlAddParameter("user", attr);
+            dashboardInit();
+          }
+        } else if (child.classList.contains("tags")) {
+          tags = child.childNodes;
+          for (const tag of tags) {
+            tag.onclick = function () {
+              attr = tag.getAttribute("tag");
+              urlAddParameter("tag", attr);
+              dashboardInit();
+            }
+          }
+        }
+      }
+    }
   }
 
 }
