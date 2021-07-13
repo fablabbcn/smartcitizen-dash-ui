@@ -386,9 +386,11 @@ function displaySensor(kit, sensor, i) {
     const elem = document.createElement("li");
     elem.id = kit.data.sensors[i].id;
     // value
-    const elemValue = document.createElement("h2");
-    elemValue.innerHTML = Math.floor(kit.data.sensors[i].value) + " " + kit.data.sensors[i].unit;
-    elem.appendChild(elemValue);
+    if (settings.plots.show_last_reading){
+      const elemValue = document.createElement("h2");
+      elemValue.innerHTML = Math.floor(kit.data.sensors[i].value) + " " + kit.data.sensors[i].unit;
+      elem.appendChild(elemValue);
+    }
     // title
     const elemTitle = document.createElement("h3");
     elemTitle.innerHTML = kit.data.sensors[i].description;

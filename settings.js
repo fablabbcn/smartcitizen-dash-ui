@@ -5,7 +5,13 @@ let settings = {
   // primarySensor: { id: 56, threshold: [20, 40] },
   indexView: ["name", "city", "user", "tags", "id", "last_update"],
   // https://developer.smartcitizen.me/#get-historical-readings
-  plots: {rollup: '1m', delta_days: 5},
+  plots: {
+    rollup: '1m',
+    delta_days: 5,
+    labelsize: 11,
+    height_ratio: 1/3,
+    show_last_reading: false,
+  },
   sensors: [
     { id: 56, threshold: [20, 40] },
     { id: 56, threshold: [40, 20] },
