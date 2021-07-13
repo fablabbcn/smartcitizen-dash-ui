@@ -397,25 +397,59 @@ function displaySensor(kit, sensor, i) {
     elem.appendChild(elemTitle);
     document.getElementById("sensors").appendChild(elem);
     const canvasWidth = 600;
-    const canvasHeight = (canvasWidth / 3) * 2;
+    const canvasHeight = (canvasWidth * settings.plots.height_ratio);
+
     const opts = {
-      title: kit.data.sensors[i].description,
+      //title: kit.data.sensors[i].description,
       id: kit.data.sensors[i].id,
       class: "chart",
       width: canvasWidth,
       height: canvasHeight,
-      series: [
-        {},
+      legend: {isolate: true},
+      scatter: false,
+      scales: {
+        x: {time: true},
+        y: {auto: true},
+      },
+      cursor: {
+        lock: false,
+        focus: {
+          prox: 16
+        },
+        sync: {
+          key: 'moo',
+          setSeries: true
+        },
+        drag: {
+          x: true,
+          y: true,
+          uni: 50,
+          dist: 10
+        }
+      },
+      axes: [
         {
-          spanGaps: true,
+          label: 'Date',
+          labelSize: settings.plots.labelsize,
+        },
+        {
+          label: kit.data.sensors[i].name + ' (' + kit.data.sensors[i].unit +')',
+          labelSize: settings.plots.labelsize,
+        }
+      ],
+      series: [
+        {label: 'Time'},
+        {
+          // spanGaps: true,
           label: sensor.sensor_key,
-          width: 1,
+          // width: 1,
           stroke: "rgba(0, 0, 0, 1",
-          fill: "rgba(0, 0, 0, 0.2)",
-          width: 1,
+          // fill: "rgba(0, 0, 0, 0.2)",
+          points: {space: 0, size: 3}
         },
       ]
     };
+
     let uplot = new uPlot(opts, data, document.getElementById(kit.data.sensors[i].id));
   }
   loading(false);

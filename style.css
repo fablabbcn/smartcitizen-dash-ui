@@ -210,22 +210,22 @@ body:not(.isLoading) .loading {
 }
 
 /* uPlot */
-.chart {margin-bottom: 50px;}
-.u-title, .u-legend {display: none !important;}
-.uplot.chart {
+/*.chart {margin-bottom: 50px;}*/
+/*.u-title, .u-legend {display: none !important;}*/
+/*.uplot.chart {
   width: 100%;
   overflow: hidden;
   margin-bottom: 30px;
-}
-.u-wrap {
+}*/
+/*.u-wrap {
   width: 100% !important;
   height: 0 !important;
   padding-bottom: calc(100%/3*2);
-}
-.uplot canvas {
+}*/
+/*.uplot canvas {
   position: absolute;
   top: 0; left: 0;
-}
+}*/
 
 /* Simple */
 .index.simple .reset {
