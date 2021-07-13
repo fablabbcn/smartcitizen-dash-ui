@@ -4,6 +4,8 @@ let settings = {
   filter: { search: true, type: "", value: "" },
   // primarySensor: { id: 56, threshold: [20, 40] },
   indexView: ["name", "city", "user", "tags", "id", "last_update"],
+  // https://developer.smartcitizen.me/#get-historical-readings
+  rollup: '1m',
   sensors: [
     { id: 56, threshold: [20, 40] },
     { id: 56, threshold: [40, 20] },

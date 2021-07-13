@@ -70,7 +70,7 @@ function getKitData(kit) {
   let today = d.toISOString().slice(0, 10);
   let then = new Date(d.setDate(d.getDate()-5)).toISOString().slice(0, 10); // 5 days ago
   for (let i = 0; kit.data.sensors.length > i; i++) {
-    const sensorUrl = `https://api.smartcitizen.me/v0/devices/${kit.id}/readings?sensor_id=${kit.data.sensors[i].id}&rollup=1h&from=${then}&to=${today}`;
+    const sensorUrl = `https://api.smartcitizen.me/v0/devices/${kit.id}/readings?sensor_id=${kit.data.sensors[i].id}&rollup=${settings.rollup}&from=${then}&to=${today}`;
     https: fetch(sensorUrl)
     .then((res) => {
       return res.json();
