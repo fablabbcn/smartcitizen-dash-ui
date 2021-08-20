@@ -25,7 +25,6 @@ function dashboardInit() {
 function urlGetParameters() {
   const url = new URL(window.location.href);
   const params = url.searchParams;
-  console.log(params);
   if (isFirstLoad) {
     if ((settings.filter.type) && (settings.filter.value)) {
       settings.filter.type === "tag" ? (tag = settings.filter.value) : (tag = null);
@@ -101,7 +100,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
     listHtml.appendChild(elemHtml(kit));
     kitsCounter++;
   }
-  // webSocketUpdate();
+  webSocketUpdate();
 
 
   function filterKits() {
@@ -196,8 +195,11 @@ function displayKits(kits, filterType = null, filterValue = null) {
               primarySensorUnit = kitPrimary.data.sensors[key].unit;
               primarySensorDesc = kitPrimary.data.sensors[key].description;
               let primarySensorHtml = '<div class="primarySensor"><div>' + '<span class="primaryValue">' + primarySensorValue + '</span> ' + primarySensorUnit + '</div><div>' + primarySensorDesc + '</div></div>';
-              document.getElementById(kitPrimary.id).classList.add(primarySensorCheck(primarySensorValue));
-              document.getElementById(kitPrimary.id).innerHTML += primarySensorHtml;
+              target = document.getElementById(kitPrimary.id);
+              if (target != null) {
+                target.classList.add(primarySensorCheck(primarySensorValue));
+                target.innerHTML += primarySensorHtml;
+              }
               break;
             }
           }
@@ -223,7 +225,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
             if (targetUpdate !== undefined) {
               let dateNow = new Date();
               targetUpdate.textContent = "last update: " + dateNow.toLocaleString("en-GB");
-              // console.log(d.name + ': updated!');
+              console.log(d.name + ': updated!');
             }
             target.classList.remove("updated", "inRange", "outRange");
             target.classList.add("updated", primarySensorCheck(d.data.sensors[i].value));
