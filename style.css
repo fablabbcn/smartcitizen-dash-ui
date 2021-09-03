@@ -1,0 +1,79 @@
+/* CSS Reset */
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Variables */
+:root {
+  /* Colors */
+  --colorBase: #000000;
+  --colorBody: #FFFFFF;
+  --colorAction: #0065ff;
+  --colorBackground: #39424c;
+  --colorTrue: #35e67e;
+  --colorFalse: #e74c3d;
+  /* Fonts */
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --size-xxs: calc(1rem / 4 * 1);
+  --size-xs: calc(1rem / 4 * 2);
+  --size-sm: calc(1rem / 4 * 3);
+  --size-md: calc(1rem / 4 * 4);
+  --size-lg: calc(1rem / 4 * 5);
+  --size-xl: calc(1rem / 4 * 6);
+  --size-xxl: calc(1rem / 4 * 8);
+  /* Misc */
+  --border-sm: 1px;
+  --border-md: 3px;
+  --content-max-width: 640px;
+  --opacity: .5;
+}
+
+/* General */
+body {
+  font-size: var(--size-md);
+  font-family: var(--font-body);
+  color: var(--colorBase);
+  background-color: var(--colorBackground);
+}
+.main {
+  padding: var(--size-lg) var(--size-md);
+}
+
+/* Loading */
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999;
+  text-align: center;
+  padding: var(--size-xs);
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  font-size: var(--size-sm);
+  background-color: var(--colorBackground);
+  color: var(--colorBase);
+  padding-top: 45vh;
+  height: 100vh;
+}
+body.isLoading .reset,
+body.isLoading .main {
+  display: none;
+}
+body:not(.isLoading) .loading {
+  display: none;
+}
+
+/* Logo */
+#logo {
+  display: block;
+  max-width: 80px;
+  width: 33%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: var(--size-xl);
+  cursor: pointer;
+}

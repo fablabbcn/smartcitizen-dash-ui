@@ -7,7 +7,9 @@ window.onload = function () {
 
 // dashboard initialization
 function dashboardInit() {
+  loading(true);
   urlGetParameters();
+  globalInterface();
   if (id) {
     getKit(id);
   } else if (tag) {
@@ -96,12 +98,31 @@ function displayKits(kits, filterType = null, filterValue = null) {
   let listHtml = document.createElement('ul');
   listHtml.id = 'list';
   document.getElementById("main").appendChild(listHtml);
+  indexInterface();
+  loading(false);
   for (let kit of kitsFiltered) {
     listHtml.appendChild(elemHtml(kit));
     kitsCounter++;
   }
+  // searchBar();
   webSocketUpdate();
 
+  function indexInterface() {
+    let header = document.getElementById('header');
+    // title
+    if (filterType) {
+      header.insertAdjacentHTML('beforeend', '<div id="title">' + settings.title + ': ' + filterValue + '</div>');
+    } else {
+      header.insertAdjacentHTML('beforeend', '<div id="title">' + settings.title + '</div>');
+    }
+    // subtitle
+    header.insertAdjacentHTML('beforeend', '<div id="subtitle">' + activeCounter + ' active kits today, of a total of ' + kitsFiltered.length + '</div>');
+    // reset
+    header.insertAdjacentHTML('beforeend', '<div id="reset">Reset filters</div>');
+    document.getElementById("reset").onclick = function () {
+      resetFilters();
+    };
+  }
 
   function filterKits() {
     let kitsFiltered = [];
@@ -236,6 +257,23 @@ function displayKits(kits, filterType = null, filterValue = null) {
     });
   }
 
+  function searchBar() {
+    if (settings.searchBar) {
+      // Display
+      console.log('ho');
+      const searchInput = document.createElement("input");
+      searchInput.type = "text";
+      searchInput.placeholder = "filter";
+      searchInput.classList.add("fuzzy-search");
+      searchInput.id = "searchInput";
+      document.getElementById("main").appendChild(searchInput);
+      // Search init
+      const kitsList = new List('main', { 
+        valueNames: ['name', 'city', 'tag', 'update']
+      });
+    }
+  }
+
   function primarySensorCheck(value) {
     let sensorStatus;
     if ((settings.primarySensor.threshold[0] < value) && (value < settings.primarySensor.threshold[1])) {
@@ -249,6 +287,49 @@ function displayKits(kits, filterType = null, filterValue = null) {
 
 // get kit from API
 function getKit() {
-  console.log("get kit");
+  displayKit();
 }
 
+// display kit (detail)
+function displayKit() {
+  document.getElementById("main").innerHTML = "";
+  loading(false);
+}
+
+// loading screen
+function loading(status) {
+  status ? document.body.classList.add("isLoading") : document.body.classList.remove("isLoading");
+}
+
+// global interface
+function globalInterface() {
+  // title
+  document.title = settings.title;
+  // styles
+  if (settings.styles) {
+    styleKeys = Object.keys(settings.styles);
+    styleValues = Object.values(settings.styles);
+    for (let i = 0; i < styleKeys.length; i++) {
+      document.documentElement.style.setProperty('--' + styleKeys[i], styleValues[i]);
+    }
+  }
+  // header
+  if (document.getElementById("header")) {
+    document.getElementById("header").remove();
+  }
+  let header = document.createElement("header");
+  header.id = "header"
+  document.body.prepend(header);
+  // logo
+  if (! document.getElementById("logo")) {
+    header.insertAdjacentHTML('afterbegin', '<img id="logo" src="assets/' + settings.logo + '" alt="' + settings.title + '">');
+  }
+  document.getElementById("logo").onclick = function () {
+    resetFilters();
+  };
+}
+
+function resetFilters() {
+  ((settings.filter.type) && (settings.filter.value)) ? urlAddParameters(settings.filter.type, settings.filter.value) : urlAddParameters(null);
+  dashboardInit();
+}
