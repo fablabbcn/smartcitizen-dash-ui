@@ -97,6 +97,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
   let { activeCounter, kitsFiltered } = filterKits();
   let listHtml = document.createElement('ul');
   listHtml.id = 'list';
+  listHtml.classList.add('list');
   document.getElementById("main").appendChild(listHtml);
   indexInterface();
   loading(false);
@@ -104,7 +105,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
     listHtml.appendChild(elemHtml(kit));
     kitsCounter++;
   }
-  // searchBar();
+  searchBar();
   webSocketUpdate();
 
   function indexInterface() {
@@ -260,17 +261,19 @@ function displayKits(kits, filterType = null, filterValue = null) {
   function searchBar() {
     if (settings.searchBar) {
       // Display
-      console.log('ho');
-      const searchInput = document.createElement("input");
-      searchInput.type = "text";
-      searchInput.placeholder = "filter";
-      searchInput.classList.add("fuzzy-search");
-      searchInput.id = "searchInput";
-      document.getElementById("main").appendChild(searchInput);
-      // Search init
-      const kitsList = new List('main', { 
-        valueNames: ['name', 'city', 'tag', 'update']
-      });
+      if (!document.getElementById("searchInput")) {
+        let searchInput = document.createElement("input");
+        searchInput.type = "text";
+        searchInput.placeholder = "filter";
+        searchInput.classList.add("fuzzy-search");
+        searchInput.id = "searchInput";
+        document.getElementById("main").insertAdjacentElement('afterbegin', searchInput);
+        // Search init
+        let mainList = new List('main', { 
+          valueNames: ['name', 'city', 'tag', 'id', 'lastUpdate']
+        });
+      }
+      
     }
   }
 
