@@ -106,7 +106,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
     kitsCounter++;
   }
   searchBar();
-  webSocketUpdate();
+  webSocketIndexUpdate();
 
   function indexInterface() {
     let header = document.getElementById('header');
@@ -229,7 +229,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
       });
   }
 
-  function webSocketUpdate() {
+  function webSocketIndexUpdate() {
     const socket = io.connect("wss://ws.smartcitizen.me", { reconnect: true });
     socket.on("data-received", d => {
       target = document.getElementById(d.id);
@@ -289,14 +289,132 @@ function displayKits(kits, filterType = null, filterValue = null) {
 }
 
 // get kit from API
-function getKit() {
-  displayKit();
+function getKit(id) {
+  const kitUrl = `https://api.smartcitizen.me/v0/devices/${id}`;
+  https: fetch(kitUrl)
+  .then((res) => {
+    if (res.status == 429) alertUpdate(id, "tooManyRequests");
+    return res.json();
+  })
+  .then((kit) => {
+    displayKit(kit);
+  });
 }
 
 // display kit (detail)
-function displayKit() {
+function displayKit(kit) {
   document.getElementById("main").innerHTML = "";
+  detailInterface();
+  kitData(kit);
   loading(false);
+  webSocketDetailUpdate();
+
+  function detailInterface() {
+    let header = document.getElementById('header');
+    // title
+    header.insertAdjacentHTML('beforeend', '<div id="title">' + kit.name + '</div>');
+    // subtitle
+    header.insertAdjacentHTML('beforeend', '<div id="title">' + kit.description + '</div>');
+    // reset
+    header.insertAdjacentHTML('beforeend', '<div id="reset">Back to index</div>');
+    document.getElementById("reset").onclick = function () {
+      resetFilters();
+    };
+    // read more
+    document.getElementById("main").insertAdjacentHTML('beforeend', '<a href="https://smartcitizen.me/kits/' + kit.id + '" target="_blank">More info on this kit&nbsp↗</a>');
+  }
+  
+  function kitData(kit) {
+    document.getElementById("main").insertAdjacentHTML('afterbegin', '<ul class="list" id="sensors"></div>');
+    let d = new Date();
+    let today = d.toISOString().slice(0, 10);
+    let then = new Date(d.setDate(d.getDate()-5)).toISOString().slice(0, 10); // 5 days ago
+    for (let i = 0; kit.data.sensors.length > i; i++) {
+      const sensorUrl = `https://api.smartcitizen.me/v0/devices/${kit.id}/readings?sensor_id=${kit.data.sensors[i].id}&rollup=1h&from=${then}&to=${today}`;
+      https: fetch(sensorUrl)
+      .then((res) => {
+        return res.json();
+      })
+      .then((sensor) => {
+        let readings = sensor.readings;
+        let data = [[], []];
+        for (const reading of readings) {
+          let date = new Date(reading[0]).getTime() / 1000;
+          data[0].push(date);
+          data[1].push(reading[1]);
+        }
+        if (settings.sensors) {
+          for (let i = 0; i < settings.sensors.length; i++) {
+            if (sensor.sensor_id == settings.sensors[i].id) {
+              displaySensor();
+            }
+          }
+        } else {
+          displaySensor();
+        }
+
+        function displaySensor() {
+          if (data != undefined && data[0].length > 0) {
+            let value = Math.floor(kit.data.sensors[i].value);
+            let sensorStatus;
+            if (settings.sensors) {
+              if ((settings.sensors[i].threshold[0] < value) && (value < settings.sensors[i].threshold[1])) {
+                sensorStatus = 'inRange'
+              } else {
+                sensorStatus = 'outRange'
+              }
+            } else {
+              sensorStatus = 'noRange'
+            }
+            document.getElementById("sensors").insertAdjacentHTML('beforeend', '<li id="' + kit.data.sensors[i].id + '" class="' + sensorStatus + '"></li>');
+            document.getElementById(kit.data.sensors[i].id).insertAdjacentHTML('beforeend', '<h2><span class="value">' + value + '</span>' + kit.data.sensors[i].unit + '</h2>');
+            document.getElementById(kit.data.sensors[i].id).insertAdjacentHTML('beforeend', '<h3>' + kit.data.sensors[i].description + '</h3>');
+            const canvasWidth = 600;
+            const canvasHeight = (canvasWidth / 3) * 2;
+            const opts = {
+              class: "chart",
+              width: canvasWidth,
+              height: canvasHeight,
+              series: [
+                {},
+                {
+                  spanGaps: true,
+                  label: sensor.sensor_key,
+                  width: 1,
+                  stroke: "rgba(0, 0, 0, 1",
+                  fill: "rgba(0, 0, 0, 0.2)",
+                  width: 1,
+                },
+              ]
+            };
+            let uplot = new uPlot(opts, data, document.getElementById(kit.data.sensors[i].id));
+          }
+        }
+      });
+    }
+  }
+
+  function webSocketDetailUpdate() {
+    const socket = io.connect("wss://ws.smartcitizen.me", { reconnect: true });
+    socket.on("data-received", d => {
+      if (d.id == kit.id) {
+        for (let i = 0; i < d.data.sensors.length; i++) {
+          let id = d.data.sensors[i].id;
+          let elem = document.getElementById(id);
+          if (elem) {
+            let currentValue = elem.getElementsByClassName("value")[0];
+            let newValue = d.data.sensors[i].value;
+            console.log(currentValue);
+            console.log(newValue);
+            currentValue.innerHTML = newValue;
+            elem.classList.remove("updated", "inRange", "outRange");
+            elem.classList.add("updated");
+            console.log(d.data.sensors[i].name + ': updated!');
+          }
+        }
+      }
+    });
+  }
 }
 
 // loading screen

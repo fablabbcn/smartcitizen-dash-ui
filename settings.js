@@ -4,6 +4,16 @@ let settings = {
   filter: {type: "", value: "" },
   searchBar: true,
   primarySensor: { id: 56, threshold: [75, 85] },
+  // sensors: [
+  //   {id: 10, threshold: [75, 85] },
+  //   {id: 5, threshold: [75, 85] },
+  //   {id: 4, threshold: [75, 85] },
+  //   {id: 8, threshold: [75, 85] },
+  //   {id: 9, threshold: [75, 85] },
+  //   {id: 21, threshold: [75, 85] },
+  //   {id: 7, threshold: [75, 85] },
+  //   {id: 6, threshold: [25, 45] },
+  // ],
   indexView: ["name", "user", "city", "tags", "id", "last_update"],
   styles: {
     colorBase: "#000000",
