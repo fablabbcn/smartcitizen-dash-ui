@@ -265,7 +265,7 @@ body:not(.filtered) #reset {display: none;}
   font-size: var(--size-sm);
   margin-top: var(--size-lg);
 }
-#list .updated {
+.list .updated {
   animation: pop 1.2s 1;
 }
 
@@ -291,21 +291,20 @@ body:not(.filtered) #reset {display: none;}
   padding-bottom: var(--size-md);
   border-bottom: var(--border-sm) solid var(--colorBase);
 }
-/* .uplot {
-  width: 100% !important;
-  margin-bottom: var(--size-xxl);
+#sensors .value:after {
+  content: " ";
 }
-.u-wrap {
-  width: 100% !important;
-  height: 100% !important;
-} */
+.uplot {
+  margin-top: var(--size-xl);
+}
+.u-legend, .u-cursor-pt {display: none;}
 .more {
   text-align: center;
   display: block;
   color: var(--colorBase);
   font-size: var(--size-xl);
   font-weight: 600;
-  margin-top: var(--size-xl);
+  margin-top: var(--size-md);
 }
 
 
