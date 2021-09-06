@@ -14,13 +14,12 @@ let settings = {
   //   {id: 7, threshold: [75, 85] },
   //   {id: 6, threshold: [25, 45] },
   // ],
-  indexView: ["name", "user", "city", "tags", "id", "last_update"],
+  indexView: ["user", "city", "tags", "id"],
   styles: {
-    colorBase: "#000000",
-    colorBody: "#ffffff",
-    colorAction: "#0065ff",
-    colorBackground: "#ffffff",
-    colorTrue: "#35e67e",
+    colorBase: "#151515",
+    colorBody: "#FFFFFF",
+    colorBackground: "#e0e8ea",
+    colorTrue: "#349353",
     colorFalse: "#e74c3d",
   },
 };

@@ -112,7 +112,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
     let header = document.getElementById('header');
     // title
     if (filterType) {
-      header.insertAdjacentHTML('beforeend', '<div id="title">' + settings.title + ': ' + filterValue + '</div>');
+      header.insertAdjacentHTML('beforeend', '<div id="title">' + settings.title + ': <span>' + filterValue + '</span></div>');
     } else {
       header.insertAdjacentHTML('beforeend', '<div id="title">' + settings.title + '</div>');
     }
@@ -165,12 +165,9 @@ function displayKits(kits, filterType = null, filterValue = null) {
     let elem = document.createElement("li");
     elem.id = kit.id;
     kit.isActive ? elem.classList.add("active") : elem.classList.add("inactive");
-
+    elem.innerHTML += `<div class="name" onclick="dashboardUpdate('id','` + kit.id + `')">` + kit.name + '</div>'
     for (let i = 0; i < settings.indexView.length; i++) {
       switch (settings.indexView[i]) {
-        case "name":
-          elem.innerHTML += `<div class="name" onclick="dashboardUpdate('id','` + kit.id + `')">` + kit.name + '</div>'
-          break;
         case "id":
             elem.innerHTML += `<div class="id" onclick="dashboardUpdate('id','` + kit.id + `')">` + kit.id + '</div>';
           break;
@@ -179,9 +176,6 @@ function displayKits(kits, filterType = null, filterValue = null) {
           break;
         case "user":
           elem.innerHTML += `<div class="user" onclick="dashboardUpdate('user','` + kit.owner_username + `')">` + kit.owner_username + '</div>';
-          break;
-        case "last_update":
-          elem.innerHTML += '<div class="lastUpdate">' + "last update: " + new Date(kit.last_reading_at).toLocaleString("en-GB") + '</div>';
           break;
         case "tags":
           if (kit.user_tags.length > 0) {
@@ -197,6 +191,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
           break;
       }
     }
+    elem.innerHTML += '<div class="lastUpdate">' + new Date(kit.last_reading_at).toLocaleString("en-GB") + '</div>';
     if ((kitsCounter <= 20) && (settings.primarySensor)) {
       primarySensor(kit);
     }
@@ -246,7 +241,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
             targetUpdate = target.getElementsByClassName("lastUpdate")[0];
             if (targetUpdate !== undefined) {
               let dateNow = new Date();
-              targetUpdate.textContent = "last update: " + dateNow.toLocaleString("en-GB");
+              targetUpdate.textContent = dateNow.toLocaleString("en-GB");
               console.log(d.name + ': updated!');
             }
             target.classList.remove("updated", "inRange", "outRange");
@@ -314,7 +309,7 @@ function displayKit(kit) {
     // title
     header.insertAdjacentHTML('beforeend', '<div id="title">' + kit.name + '</div>');
     // subtitle
-    header.insertAdjacentHTML('beforeend', '<div id="title">' + kit.description + '</div>');
+    header.insertAdjacentHTML('beforeend', '<div id="subtitle">' + kit.description + '</div>');
     // reset
     header.insertAdjacentHTML('beforeend', '<div id="reset">Back to index</div>');
     document.getElementById("reset").onclick = function () {
@@ -443,7 +438,7 @@ function globalInterface() {
   document.body.prepend(header);
   // logo
   if (! document.getElementById("logo")) {
-    header.insertAdjacentHTML('afterbegin', '<img id="logo" src="assets/' + settings.logo + '" alt="' + settings.title + '">');
+    header.insertAdjacentHTML('afterbegin', '<img id="logo" width="80" src="assets/' + settings.logo + '" alt="' + settings.title + '">');
   }
   document.getElementById("logo").onclick = function () {
     resetFilters();
