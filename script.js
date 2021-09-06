@@ -232,8 +232,9 @@ function displayKits(kits, filterType = null, filterValue = null) {
   }
 
   function webSocketIndexUpdate() {
-    const socket = io.connect("wss://ws.smartcitizen.me", { reconnect: true });
-    socket.on("data-received", d => {
+    if (typeof socketDetail !== 'undefined') {socketDetail.off();}
+    const socketIndex = io.connect("wss://ws.smartcitizen.me", { reconnect: true });
+    socketIndex.on("data-received", d => {
       target = document.getElementById(d.id);
       if (target !== null) {
         for (let i = 0; i < d.data.sensors.length; i++) {
@@ -369,10 +370,12 @@ function displayKit(kit) {
               sensorStatus = 'noRange'
             }
             document.getElementById("sensors").insertAdjacentHTML('beforeend', '<li id="' + kit.data.sensors[i].id + '" class="' + sensorStatus + '"></li>');
-            document.getElementById(kit.data.sensors[i].id).insertAdjacentHTML('beforeend', '<h2><span class="value">' + value + '</span>' + kit.data.sensors[i].unit + '</h2>');
-            document.getElementById(kit.data.sensors[i].id).insertAdjacentHTML('beforeend', '<h3>' + kit.data.sensors[i].description + '</h3>');
-            const canvasWidth = 600;
-            const canvasHeight = (canvasWidth / 3) * 2;
+            let canvasParent = document.getElementById(kit.data.sensors[i].id);
+            canvasParent.insertAdjacentHTML('beforeend', '<h2><span class="value">' + value + '</span>' + kit.data.sensors[i].unit + '</h2>');
+            canvasParent.insertAdjacentHTML('beforeend', '<h3>' + kit.data.sensors[i].description + '</h3>');
+            let padding = parseInt(window.getComputedStyle(canvasParent, null).getPropertyValue('padding-left'), 10) * 2;
+            let canvasWidth = canvasParent.offsetWidth - padding;
+            const canvasHeight = (canvasWidth / 15) * 10;
             const opts = {
               class: "chart",
               width: canvasWidth,
@@ -397,8 +400,9 @@ function displayKit(kit) {
   }
 
   function webSocketDetailUpdate() {
-    const socket = io.connect("wss://ws.smartcitizen.me", { reconnect: true });
-    socket.on("data-received", d => {
+    if (typeof socketIndex !== 'undefined') {socketIndex.off();}
+    const socketDetail = io.connect("wss://ws.smartcitizen.me", { reconnect: true });
+    socketDetail.on("data-received", d => {
       if (d.id == kit.id) {
         for (let i = 0; i < d.data.sensors.length; i++) {
           let id = d.data.sensors[i].id;
@@ -406,8 +410,6 @@ function displayKit(kit) {
           if (elem) {
             let currentValue = elem.getElementsByClassName("value")[0];
             let newValue = d.data.sensors[i].value;
-            console.log(currentValue);
-            console.log(newValue);
             currentValue.innerHTML = newValue;
             elem.classList.remove("updated", "inRange", "outRange");
             elem.classList.add("updated");

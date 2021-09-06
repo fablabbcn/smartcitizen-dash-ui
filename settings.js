@@ -16,11 +16,11 @@ let settings = {
   // ],
   indexView: ["user", "city", "tags", "id"],
   styles: {
-    colorBase: "#151515",
+    colorBase: "#2e2e2e",
     colorBody: "#FFFFFF",
-    colorBackground: "#e0e8ea",
-    colorTrue: "#349353",
-    colorFalse: "#e74c3d",
+    colorBackground: "#ebebed",
+    colorTrue: "#019b33",
+    colorFalse: "#ff2626",
     borderWidth: "2px",
     borderRadius: "4px",
   },
@@ -50,6 +50,6 @@ let settings = {
 //     colorTrue: "#13930f",
 //     colorFalse: "#ff5140",
 //     borderWidth: "2px",
-//     borderRadius: "0",
+//     borderRadius: "20px",
 //   },
 // };
