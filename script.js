@@ -124,10 +124,12 @@ function displayKits(kits, filterType = null, filterValue = null) {
     // subtitle
     header.insertAdjacentHTML('beforeend', '<div id="subtitle">' + activeCounter + ' active kits today, of a total of ' + kitsFiltered.length + '</div>');
     // reset
-    header.insertAdjacentHTML('beforeend', '<div id="reset">Reset filter</div>');
-    document.getElementById("reset").onclick = function () {
-      resetFilters();
-    };
+    if (!settings.filter.type.length >= 1) {
+      header.insertAdjacentHTML('beforeend', '<div id="reset">Reset filter</div>');
+      document.getElementById("reset").onclick = function () {
+        resetFilters();
+      };
+    }
   }
 
   function filterKits() {
@@ -442,12 +444,14 @@ function globalInterface() {
   header.id = "header"
   document.body.prepend(header);
   // logo
-  if (! document.getElementById("logo")) {
-    header.insertAdjacentHTML('afterbegin', '<img id="logo" width="80" src="assets/' + settings.logo + '" alt="' + settings.title + '">');
+  if (settings.logo) {
+    if (! document.getElementById("logo")) {
+      header.insertAdjacentHTML('afterbegin', '<img id="logo" width="80" src="assets/' + settings.logo + '" alt="' + settings.title + '">');
+    }
+    document.getElementById("logo").onclick = function () {
+      resetFilters();
+    };
   }
-  document.getElementById("logo").onclick = function () {
-    resetFilters();
-  };
 }
 
 function resetFilters() {

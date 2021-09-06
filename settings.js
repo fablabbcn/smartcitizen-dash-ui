@@ -21,5 +21,35 @@ let settings = {
     colorBackground: "#e0e8ea",
     colorTrue: "#349353",
     colorFalse: "#e74c3d",
+    borderWidth: "2px",
+    borderRadius: "4px",
   },
 };
+
+// let settings = {
+//   title: "Smart Citizen",
+//   // logo: "logo-sc.svg",
+//   filter: {type: "city", value: "Barcelona" },
+//   searchBar: false,
+//   primarySensor: { id: 56, threshold: [75, 85] },
+//   // sensors: [
+//   //   {id: 10, threshold: [75, 85] },
+//   //   {id: 5, threshold: [75, 85] },
+//   //   {id: 4, threshold: [75, 85] },
+//   //   {id: 8, threshold: [75, 85] },
+//   //   {id: 9, threshold: [75, 85] },
+//   //   {id: 21, threshold: [75, 85] },
+//   //   {id: 7, threshold: [75, 85] },
+//   //   {id: 6, threshold: [25, 45] },
+//   // ],
+//   indexView: [],
+//   styles: {
+//     colorBase: "#0a3e0d",
+//     colorBody: "#ffe65a",
+//     colorBackground: "#ffe65a",
+//     colorTrue: "#13930f",
+//     colorFalse: "#ff5140",
+//     borderWidth: "2px",
+//     borderRadius: "0",
+//   },
+// };

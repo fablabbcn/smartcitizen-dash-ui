@@ -30,9 +30,10 @@
   --size-xxxl: calc(1rem / 4 * 10);
   /* Misc */
   --border-sm: 1px;
-  --border-md: 6px;
   --content-max-width: 640px;
   --opacity: .5;
+  --borderRadius: "10px";
+  --borderWidth: "10px";
 }
 
 html {
@@ -44,6 +45,7 @@ body {
   font-size: var(--size-md);
   font-family: var(--font-body);
   line-height: 1.35;
+  letter-spacing: 0.03em;
   color: var(--colorBase);
   background-color: var(--colorBackground);
   padding: var(--size-lg) var(--size-lg) var(--size-xxxl) var(--size-lg);
@@ -140,8 +142,8 @@ body:not(.filtered) #reset {display: none;}
   padding: var(--size-md);
   margin-bottom: var(--size-xl);
   background-color: var(--colorBody);
-  border-radius: var(--size-sm);
-  border: var(--border-md) solid var(--colorBody);
+  border-radius: var(--borderRadius);
+  border: var(--borderWidth) solid var(--colorBody);
 }
 .list > li.outRange {border-color: var(--colorFalse)}
 .list > li.inRange {border-color: var(--colorTrue)}
