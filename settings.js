@@ -1,5 +1,5 @@
 let settings = {
-  title: "Smart Citizen Dashboard",
+  title: "Smart Citizen",
   logo: "logo-sc.svg",
   filter: {type: "", value: "" },
   searchBar: true,

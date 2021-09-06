@@ -93,6 +93,11 @@ function getKits(filterType = null, filterValue = null) {
 // display kits (index)
 function displayKits(kits, filterType = null, filterValue = null) {
   document.getElementById("main").innerHTML = "";
+  if (filterType == null) {
+    document.body.classList.remove("filtered")
+  } else {
+    document.body.classList.add("filtered")
+  }
   kitsCounter = 0;
   let { activeCounter, kitsFiltered } = filterKits();
   let listHtml = document.createElement('ul');
@@ -119,7 +124,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
     // subtitle
     header.insertAdjacentHTML('beforeend', '<div id="subtitle">' + activeCounter + ' active kits today, of a total of ' + kitsFiltered.length + '</div>');
     // reset
-    header.insertAdjacentHTML('beforeend', '<div id="reset">Reset filters</div>');
+    header.insertAdjacentHTML('beforeend', '<div id="reset">Reset filter</div>');
     document.getElementById("reset").onclick = function () {
       resetFilters();
     };
@@ -307,16 +312,16 @@ function displayKit(kit) {
   function detailInterface() {
     let header = document.getElementById('header');
     // title
-    header.insertAdjacentHTML('beforeend', '<div id="title">' + kit.name + '</div>');
+    header.insertAdjacentHTML('beforeend', '<div id="title">' + settings.title + ': <span>' + kit.name + '</span></div>');
     // subtitle
     header.insertAdjacentHTML('beforeend', '<div id="subtitle">' + kit.description + '</div>');
     // reset
-    header.insertAdjacentHTML('beforeend', '<div id="reset">Back to index</div>');
-    document.getElementById("reset").onclick = function () {
+    header.insertAdjacentHTML('beforeend', '<div id="back">← Back to index</div>');
+    document.getElementById("back").onclick = function () {
       resetFilters();
     };
     // read more
-    document.getElementById("main").insertAdjacentHTML('beforeend', '<a href="https://smartcitizen.me/kits/' + kit.id + '" target="_blank">More info on this kit&nbsp↗</a>');
+    document.getElementById("main").insertAdjacentHTML('beforeend', '<a href="https://smartcitizen.me/kits/' + kit.id + '" class="more" target="_blank">More info on this kit&nbsp↗</a>');
   }
   
   function kitData(kit) {
@@ -376,8 +381,8 @@ function displayKit(kit) {
                   spanGaps: true,
                   label: sensor.sensor_key,
                   width: 1,
-                  stroke: "rgba(0, 0, 0, 1",
-                  fill: "rgba(0, 0, 0, 0.2)",
+                  stroke: settings.styles.colorBase,
+                  fill: settings.styles.colorBase,
                   width: 1,
                 },
               ]

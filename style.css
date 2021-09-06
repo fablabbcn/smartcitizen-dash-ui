@@ -46,7 +46,7 @@ body {
   line-height: 1.35;
   color: var(--colorBase);
   background-color: var(--colorBackground);
-  padding: var(--size-lg);
+  padding: var(--size-lg) var(--size-lg) var(--size-xxxl) var(--size-lg);
   overflow-x: hidden;
 }
 
@@ -97,23 +97,28 @@ body:not(.isLoading) .loading {
   font-weight: 600;
 }
 #title span {
-  display: block;
   font-style: italic;
 }
 #subtitle {
   font-size: var(--size-lg);
-  margin-top: var(--size-sm);
+  margin-top: var(--size-xs);
 }
-#reset {
-  font-size: var(--size-sm);
+#reset,
+#back {
+  position: fixed;
+  top: var(--size-sm);
+  left: var(--size-sm);
+  z-index: 2;
+  font-size: var(--size-md);
   font-family: var(--font-mono);
   text-transform: uppercase;
-  margin-top: var(--size-sm);
   cursor: pointer;
-  border-bottom: var(--border-sm) solid var(--colorBase);
-  padding-bottom: var(--size-xxs);
+  padding: var(--size-xs) var(--size-sm);
   display: inline-block;
+  background-color: var(--colorBase);
+  color: var(--colorBody);
 }
+body:not(.filtered) #reset {display: none;}
 
 /* Search */
 .fuzzy-search {
@@ -253,6 +258,40 @@ body:not(.isLoading) .loading {
   100% { transform: translate(0, 0%); }
 }
 
+/* detail */
+#sensors {
+  margin-top: var(--size-xxxl);
+}
+#sensors li h2,
+#sensors li h3 {
+  text-align: center;
+}
+#sensors li h2 {
+  font-size: var(--size-xxl);
+  font-weight: 600;
+}
+#sensors li h3 {
+  padding-bottom: var(--size-md);
+  border-bottom: var(--border-sm) solid var(--colorBase);
+}
+.uplot {
+  width: 100% !important;
+  margin-bottom: var(--size-xxl);
+}
+.u-wrap {
+  width: 100% !important;
+  height: 100% !important;
+}
+.more {
+  text-align: center;
+  display: block;
+  color: var(--colorBase);
+  font-size: var(--size-xl);
+  font-weight: 600;
+  margin-top: var(--size-xl);
+}
+
+
 
 @media screen and (min-width: 870px) {
   html {
@@ -290,7 +329,7 @@ body:not(.isLoading) .loading {
     width: calc(100% / 4 - var(--size-lg));
   }
   #sensors > li {
-    width: calc(100% / 2 - var(--size-lg));
+    width: calc(100% / 3 - var(--size-lg));
   }
 }
 
@@ -299,6 +338,6 @@ body:not(.isLoading) .loading {
     width: calc(100% / 5 - var(--size-lg));
   }
   #sensors > li {
-    width: calc(100% / 3 - var(--size-lg));
+    width: calc(100% / 4 - var(--size-lg));
   }
 }
