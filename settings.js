@@ -27,7 +27,7 @@ let settings = {
 };
 
 // let settings = {
-//   title: "Smart Citizen",
+//   title: "Barcelona's humidity",
 //   // logo: "logo-sc.svg",
 //   filter: {type: "city", value: "Barcelona" },
 //   searchBar: false,
@@ -44,12 +44,13 @@ let settings = {
 //   // ],
 //   indexView: [],
 //   styles: {
-//     colorBase: "#0a3e0d",
-//     colorBody: "#ffe65a",
-//     colorBackground: "#ffe65a",
-//     colorTrue: "#13930f",
-//     colorFalse: "#ff5140",
-//     borderWidth: "2px",
-//     borderRadius: "20px",
+//     colorBase: "#0b0b0b",
+//     colorBody: "#fffdf4",
+//     colorBackground: "#fffdf4",
+//     colorTrue: "#66b963",
+//     colorFalse: "#f96341",
+//     borderWidth: "1px",
+//     borderRadius: "50%",
 //   },
+//   minimalistic: true,
 // };

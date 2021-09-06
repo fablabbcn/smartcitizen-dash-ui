@@ -93,6 +93,11 @@ function getKits(filterType = null, filterValue = null) {
 // display kits (index)
 function displayKits(kits, filterType = null, filterValue = null) {
   document.getElementById("main").innerHTML = "";
+  document.body.classList.add('index');
+  if (settings.minimalistic) {
+    document.body.classList.remove('minimalistic');
+    document.body.classList.add('minimalistic');
+  }
   if (filterType == null) {
     document.body.classList.remove("filtered")
   } else {
@@ -117,12 +122,12 @@ function displayKits(kits, filterType = null, filterValue = null) {
     let header = document.getElementById('header');
     // title
     if (filterType) {
-      header.insertAdjacentHTML('beforeend', '<div id="title">' + settings.title + ': <span>' + filterValue + '</span></div>');
+      header.insertAdjacentHTML('beforeend', '<div id="title"><span>' + settings.title + '</span><span>' + filterValue + '</span></div>');
     } else {
       header.insertAdjacentHTML('beforeend', '<div id="title">' + settings.title + '</div>');
     }
     // subtitle
-    header.insertAdjacentHTML('beforeend', '<div id="subtitle">' + activeCounter + ' active kits today, of a total of ' + kitsFiltered.length + '</div>');
+    header.insertAdjacentHTML('beforeend', '<div id="subtitle">' + activeCounter + ' active sensor kits today, of a total of ' + kitsFiltered.length + '</div>');
     // reset
     if (!settings.filter.type.length >= 1) {
       header.insertAdjacentHTML('beforeend', '<div id="reset">Reset filter</div>');
@@ -307,6 +312,7 @@ function getKit(id) {
 // display kit (detail)
 function displayKit(kit) {
   document.getElementById("main").innerHTML = "";
+  document.body.classList.remove('index');
   detailInterface();
   kitData(kit);
   loading(false);
@@ -315,7 +321,7 @@ function displayKit(kit) {
   function detailInterface() {
     let header = document.getElementById('header');
     // title
-    header.insertAdjacentHTML('beforeend', '<div id="title">' + settings.title + ': <span>' + kit.name + '</span></div>');
+    header.insertAdjacentHTML('beforeend', '<div id="title"><span>' + settings.title + '</span><span>' + kit.name + '</span></div>');
     // subtitle
     header.insertAdjacentHTML('beforeend', '<div id="subtitle">' + kit.description + '</div>');
     // reset

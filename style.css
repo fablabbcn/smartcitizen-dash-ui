@@ -113,7 +113,10 @@ body:not(.isLoading) .loading {
   margin-top: var(--size-lg);
   font-weight: 600;
 }
-#title span {
+#title span:first-child:after {
+  content: ": ";
+}
+#title span:last-child {
   font-style: italic;
 }
 #subtitle {
@@ -268,11 +271,46 @@ body:not(.filtered) #reset {display: none;}
 .list .updated {
   animation: pop 1.2s 1;
 }
-
 @keyframes pop {
   0% { transform: translate(0%, 0%); }
   30% { transform: translate(0, -10%); }
   100% { transform: translate(0, 0%); }
+}
+/* minimalistic */
+.minimalistic.index #title span:first-child:after {content: none;}
+.minimalistic.index #title span:last-child {display: none;}
+.minimalistic:not(.index) #title span:first-child {display: none;}
+.minimalistic:not(.index) #title span:last-child {font-style: normal;}
+.minimalistic #list li > * {
+  display: none;
+}
+.minimalistic #list li {position: relative;}
+.minimalistic #list li .name {
+  display: block;
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  opacity: 0;
+}
+.minimalistic #list li:after {
+  content: "";
+  display: block;
+  padding-bottom: 100%;
+}
+.minimalistic #list li.inRange {background-color: var(--colorTrue); border-color: var(--colorBody) !important;}
+.minimalistic #list li.outRange {background-color: var(--colorFalse); border-color: var(--colorBody) !important;}
+.minimalistic #list li:not(.inRange):not(.outRange) {border-color: var(--colorBase);}
+.minimalistic #list > li {
+  width: calc(100% / 7 - var(--size-lg)) !important;
+}
+.minimalistic #list {
+  margin-left: calc(var(--size-lg) * -1);
+  display: flex;
+  flex-wrap: wrap;
+}
+.minimalistic #list > li {
+  display: flex;
+  flex-direction: column;
+  margin-left: var(--size-lg);
 }
 
 /* detail */
@@ -306,8 +344,6 @@ body:not(.filtered) #reset {display: none;}
   font-weight: 600;
   margin-top: var(--size-md);
 }
-
-
 
 @media screen and (min-width: 870px) {
   html {
@@ -345,7 +381,7 @@ body:not(.filtered) #reset {display: none;}
     width: calc(100% / 4 - var(--size-lg));
   }
   #sensors > li {
-    width: calc(100% / 3 - var(--size-lg));
+    width: calc(100% / 2 - var(--size-lg));
   }
 }
 
@@ -354,6 +390,6 @@ body:not(.filtered) #reset {display: none;}
     width: calc(100% / 5 - var(--size-lg));
   }
   #sensors > li {
-    width: calc(100% / 4 - var(--size-lg));
+    width: calc(100% / 3 - var(--size-lg));
   }
 }
