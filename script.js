@@ -80,13 +80,13 @@ function getKits(filterType = null, filterValue = null) {
   // retrieve from cache
   caches.open(cacheName).then(cache => {
     cache.match(kitsUrl)
-      .then((response) => {
-        if (response.status == 429) alertUpdate(id, "tooManyRequests");
-        return response.json();
-      })
-      .then((kits) => {
-        displayKits(kits, filterType, filterValue);
-      });
+    .then((response) => {
+      if (response.status == 429) alertUpdate(id, "tooManyRequests");
+      return response.json();
+    })
+    .then((kits) => {
+      displayKits(kits, filterType, filterValue);
+    });
   });
 }
 
@@ -117,7 +117,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
   }
   searchBar();
   webSocketIndexUpdate();
-
+  
   function indexInterface() {
     let header = document.getElementById('header');
     // title
@@ -136,7 +136,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
       };
     }
   }
-
+  
   function filterKits() {
     let kitsFiltered = [];
     let activeCounter = 0;
@@ -172,7 +172,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
     });
     return { activeCounter, kitsFiltered }
   }
-
+  
   function elemHtml(kit) {
     let elem = document.createElement("li");
     elem.id = kit.id;
@@ -181,26 +181,26 @@ function displayKits(kits, filterType = null, filterValue = null) {
     for (let i = 0; i < settings.indexView.length; i++) {
       switch (settings.indexView[i]) {
         case "id":
-            elem.innerHTML += `<div class="id" onclick="dashboardUpdate('id','` + kit.id + `')">` + kit.id + '</div>';
-          break;
+        elem.innerHTML += `<div class="id" onclick="dashboardUpdate('id','` + kit.id + `')">` + kit.id + '</div>';
+        break;
         case "city":
-          elem.innerHTML += `<div class="city" onclick="dashboardUpdate('city','` + kit.city + `')">` + kit.city + '</div>';
-          break;
+        elem.innerHTML += `<div class="city" onclick="dashboardUpdate('city','` + kit.city + `')">` + kit.city + '</div>';
+        break;
         case "user":
-          elem.innerHTML += `<div class="user" onclick="dashboardUpdate('user','` + kit.owner_username + `')">` + kit.owner_username + '</div>';
-          break;
+        elem.innerHTML += `<div class="user" onclick="dashboardUpdate('user','` + kit.owner_username + `')">` + kit.owner_username + '</div>';
+        break;
         case "tags":
-          if (kit.user_tags.length > 0) {
-            elemTags = '<div class="tags">';
-            for (let i = 0; i < kit.user_tags.length; i++) {
-              elemTags += `<div class="tag" onclick="dashboardUpdate('tag','` + kit.user_tags[i] + `')">` + kit.user_tags[i] + '</div>';
-            }
-            elem.innerHTML += elemTags;
+        if (kit.user_tags.length > 0) {
+          elemTags = '<div class="tags">';
+          for (let i = 0; i < kit.user_tags.length; i++) {
+            elemTags += `<div class="tag" onclick="dashboardUpdate('tag','` + kit.user_tags[i] + `')">` + kit.user_tags[i] + '</div>';
           }
-          break;
+          elem.innerHTML += elemTags;
+        }
+        break;
         default:
-          console.log("This element does not exist");
-          break;
+        console.log("This element does not exist");
+        break;
       }
     }
     elem.innerHTML += '<div class="lastUpdate">' + new Date(kit.last_reading_at).toLocaleString("en-GB") + '</div>';
@@ -209,33 +209,33 @@ function displayKits(kits, filterType = null, filterValue = null) {
     }
     return elem;
   }
-
+  
   function primarySensor(kit) {
     const kitUrl = `https://api.smartcitizen.me/v0/devices/${kit.id}`;
     https: fetch(kitUrl)
-      .then((res) => {
-        return res.json();
-      })
-      .then((kitPrimary) => {
-        if (kitPrimary.data && kit.isActive) {
-          for (let key in kitPrimary.data.sensors) {
-            if (kitPrimary.data.sensors[key].id === settings.primarySensor.id) {
-              primarySensorValue = kitPrimary.data.sensors[key].value;
-              primarySensorUnit = kitPrimary.data.sensors[key].unit;
-              primarySensorDesc = kitPrimary.data.sensors[key].description;
-              let primarySensorHtml = '<div class="primarySensor"><div>' + '<span class="primaryValue">' + primarySensorValue + '</span> ' + primarySensorUnit + '</div><div>' + primarySensorDesc + '</div></div>';
-              target = document.getElementById(kitPrimary.id);
-              if (target != null) {
-                target.classList.add(primarySensorCheck(primarySensorValue));
-                target.innerHTML += primarySensorHtml;
-              }
-              break;
+    .then((res) => {
+      return res.json();
+    })
+    .then((kitPrimary) => {
+      if (kitPrimary.data && kit.isActive) {
+        for (let key in kitPrimary.data.sensors) {
+          if (kitPrimary.data.sensors[key].id === settings.primarySensor.id) {
+            primarySensorValue = kitPrimary.data.sensors[key].value;
+            primarySensorUnit = kitPrimary.data.sensors[key].unit;
+            primarySensorDesc = kitPrimary.data.sensors[key].description;
+            let primarySensorHtml = '<div class="primarySensor"><div>' + '<span class="primaryValue">' + primarySensorValue + '</span> ' + primarySensorUnit + '</div><div>' + primarySensorDesc + '</div></div>';
+            target = document.getElementById(kitPrimary.id);
+            if (target != null) {
+              target.classList.add(primarySensorCheck(primarySensorValue));
+              target.innerHTML += primarySensorHtml;
             }
+            break;
           }
         }
-      });
+      }
+    });
   }
-
+  
   function webSocketIndexUpdate() {
     if (typeof socketDetail !== 'undefined') {socketDetail.off();}
     const socketIndex = io.connect("wss://ws.smartcitizen.me", { reconnect: true });
@@ -265,7 +265,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
       }
     });
   }
-
+  
   function searchBar() {
     if (settings.searchBar) {
       // Display
@@ -284,7 +284,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
       
     }
   }
-
+  
   function primarySensorCheck(value) {
     let sensorStatus;
     if ((settings.primarySensor.threshold[0] < value) && (value < settings.primarySensor.threshold[1])) {
@@ -317,7 +317,7 @@ function displayKit(kit) {
   kitData(kit);
   loading(false);
   webSocketDetailUpdate();
-
+  
   function detailInterface() {
     let header = document.getElementById('header');
     // title
@@ -337,7 +337,7 @@ function displayKit(kit) {
     document.getElementById("main").insertAdjacentHTML('afterbegin', '<ul class="list" id="sensors"></div>');
     let d = new Date();
     let today = d.toISOString().slice(0, 10);
-    let then = new Date(d.setDate(d.getDate()-5)).toISOString().slice(0, 10); // 5 days ago
+    let then = new Date(d.setDate(d.getDate()-30)).toISOString().slice(0, 10); // 5 days ago
     for (let i = 0; kit.data.sensors.length > i; i++) {
       const sensorUrl = `https://api.smartcitizen.me/v0/devices/${kit.id}/readings?sensor_id=${kit.data.sensors[i].id}&rollup=1h&from=${then}&to=${today}`;
       https: fetch(sensorUrl)
@@ -361,16 +361,18 @@ function displayKit(kit) {
         } else {
           displaySensor();
         }
-
+        
         function displaySensor() {
           if (data != undefined && data[0].length > 0) {
             let value = Math.floor(kit.data.sensors[i].value);
             let sensorStatus;
             if (settings.sensors) {
-              if ((settings.sensors[i].threshold[0] < value) && (value < settings.sensors[i].threshold[1])) {
-                sensorStatus = 'inRange'
-              } else {
-                sensorStatus = 'outRange'
+              for (let i = 0; i < settings.sensors.length; i++) {
+                if ((settings.sensors[i].threshold[0] < value) && (value < settings.sensors[i].threshold[1])) {
+                  sensorStatus = 'inRange'
+                } else {
+                  sensorStatus = 'outRange'
+                }
               }
             } else {
               sensorStatus = 'noRange'
@@ -404,7 +406,7 @@ function displayKit(kit) {
       });
     }
   }
-
+  
   function webSocketDetailUpdate() {
     if (typeof socketIndex !== 'undefined') {socketIndex.off();}
     const socketDetail = io.connect("wss://ws.smartcitizen.me", { reconnect: true });
@@ -417,8 +419,18 @@ function displayKit(kit) {
             let currentValue = elem.getElementsByClassName("value")[0];
             let newValue = d.data.sensors[i].value;
             currentValue.innerHTML = newValue;
+            let sensorStatus;
+            for (let i = 0; i < settings.sensors.length; i++) {
+              if (id == settings.sensors[i].id) {
+                if ((settings.sensors[i].threshold[0] < newValue) && (newValue < settings.sensors[i].threshold[1])) {
+                  sensorStatus = 'inRange'
+                } else {
+                  sensorStatus = 'outRange'
+                }
+              }
+            }
             elem.classList.remove("updated", "inRange", "outRange");
-            elem.classList.add("updated");
+            elem.classList.add("updated", sensorStatus);
             console.log(d.data.sensors[i].name + ': updated!');
           }
         }
