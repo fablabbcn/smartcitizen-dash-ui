@@ -331,6 +331,10 @@ function displayKit(kit) {
     };
     // read more
     document.getElementById("main").insertAdjacentHTML('beforeend', '<a href="https://smartcitizen.me/kits/' + kit.id + '" class="more" target="_blank">More info on this kit&nbsp↗</a>');
+    // main class
+    for (let i = 0; i < kit.user_tags.length; i++) {
+      document.getElementById("main").classList.add(kit.user_tags[i])
+    }
   }
   
   function kitData(kit) {
@@ -364,14 +368,17 @@ function displayKit(kit) {
         
         function displaySensor() {
           if (data != undefined && data[0].length > 0) {
+            let sensor_id = kit.data.sensors[i].id;
             let value = Math.floor(kit.data.sensors[i].value);
             let sensorStatus;
             if (settings.sensors) {
               for (let i = 0; i < settings.sensors.length; i++) {
-                if ((settings.sensors[i].threshold[0] < value) && (value < settings.sensors[i].threshold[1])) {
-                  sensorStatus = 'inRange'
-                } else {
-                  sensorStatus = 'outRange'
+                if (settings.sensors[i].id == sensor_id) {
+                  if ((settings.sensors[i].threshold[0] < value) && (value < settings.sensors[i].threshold[1])) {
+                    sensorStatus = 'inRange'
+                  } else {
+                    sensorStatus = 'outRange'
+                  }
                 }
               }
             } else {

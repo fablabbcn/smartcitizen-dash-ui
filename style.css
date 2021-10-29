@@ -122,7 +122,6 @@ body:not(.isLoading) .loading {
 #subtitle {
   font-size: var(--size-xl);
   margin-top: var(--size-sm);
-  font-weight: 600;
 }
 #reset,
 #back {
@@ -145,7 +144,7 @@ body:not(.filtered) #reset {display: none;}
 #footer {
   text-align: center;
   margin-top: calc(var(--size-xxxl) * 2);
-  border-top: var(--borderWidth) solid var(--colorBase);
+  border-top: var(--borderWidth) dashed var(--colorBase);
   padding-top: var(--size-xxxl);
 }
 #footer_logo {
@@ -154,13 +153,10 @@ body:not(.filtered) #reset {display: none;}
 }
 #footer p {
   font-size: var(--size-xl);
-  font-weight: 600;
 }
 #footer_links {
   list-style: none;
   margin-top: var(--size-xxxl);
-  /* border-top: var(--borderWidth) solid var(--colorBase);
-  padding-top: var(--size-xxxl); */
 }
 #footer_links li {
   display: inline-block;
@@ -355,6 +351,7 @@ body:not(.filtered) #reset {display: none;}
 #sensors li h2,
 #sensors li h3 {
   text-align: center;
+  font-weight: 300;
 }
 #sensors li h2 {
   font-size: var(--size-xxl);
@@ -362,16 +359,24 @@ body:not(.filtered) #reset {display: none;}
 }
 #sensors li h3 {
   padding-bottom: var(--size-md);
-  border-bottom: var(--borderWidth) solid var(--colorBase);
+  border-bottom: 4px solid var(--colorBase);
 }
 #sensors .value:after {
   content: " ";
 }
-#sensors .outRange h2 {
+#sensors .outRange h2,
+#sensors .outRange h3 {
   color: var(--colorFalse);
 }
-#sensors .inRange h2 {
-  color: var(--colorFalse);
+#sensors .outRange h3 {
+  border-color: var(--colorFalse);
+}
+#sensors .inRange h3 {
+  border-color: var(--colorTrue);
+}
+#sensors .inRange h2,
+#sensors .inRange h3 {
+  color: var(--colorTrue);
 }
 .uplot {
   margin-top: var(--size-xl);
@@ -379,11 +384,16 @@ body:not(.filtered) #reset {display: none;}
 .u-legend, .u-cursor-pt {display: none;}
 .more {
   text-align: center;
-  display: block;
+  display: table;
   color: var(--colorBase);
   font-size: var(--size-xl);
   font-weight: 600;
   margin-top: var(--size-md);
+  text-decoration: none;
+  border: var(--border-sm) solid var(--colorBase);
+  padding: var(--size-md);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 @media screen and (min-width: 870px) {

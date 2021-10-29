@@ -34,13 +34,9 @@ let settings = {
   primarySensor: { id: 56, threshold: [60, 80] },
   sensors: [
     {id: 14, threshold: [75, 85] },
-    {id: 56, threshold: [75, 85] },
-    // {id: 4, threshold: [75, 85] },
-    // {id: 8, threshold: [75, 85] },
-    // {id: 9, threshold: [75, 85] },
-    // {id: 21, threshold: [75, 85] },
-    // {id: 7, threshold: [75, 85] },
-    // {id: 6, threshold: [25, 45] },
+    {id: 56, threshold: [30, 85] },
+    {id: 55, threshold: [10, 30] },
+    {id: 53, threshold: [75, 85] },
   ],
   indexView: [],
   styles: {
