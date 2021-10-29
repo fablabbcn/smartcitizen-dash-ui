@@ -466,11 +466,39 @@ function globalInterface() {
   // logo
   if (settings.logo) {
     if (! document.getElementById("logo")) {
-      header.insertAdjacentHTML('afterbegin', '<img id="logo" width="80" src="assets/' + settings.logo + '" alt="' + settings.title + '">');
+      header.insertAdjacentHTML('afterbegin', '<img id="logo" src="assets/' + settings.logo + '" alt="' + settings.title + '">');
     }
     document.getElementById("logo").onclick = function () {
       resetFilters();
     };
+  }
+  // footer
+  if (document.getElementById("footer")) {
+    document.getElementById("footer").remove();
+  }
+  let footer = document.createElement("footer");
+  footer.id = "footer"
+  document.body.append(footer);
+  if (settings.footer_links) {
+    if (! document.getElementById("footer_links")) {
+      let footer_links = document.createElement("ul");
+      footer_links.id = "footer_links"
+      footer.append(footer_links);
+      for (let i = 0; i < settings.footer_links.length; i++) {
+        footer_links.insertAdjacentHTML('afterbegin', '<li><a href="' + settings.footer_links[i].url + '" target="_blank"><img src="assets/' + settings.footer_links[i].logo + '" alt="' + settings.footer_links[i].text + '"></a></li>');
+      }
+      
+    }
+  }
+  if (settings.footer_description) {
+    if (! document.getElementById("footer_description")) {
+      footer.insertAdjacentHTML('afterbegin', '<p>' + settings.footer_description + '</p>');
+    }
+  }
+  if (settings.footer_logo) {
+    if (! document.getElementById("footer_logo")) {
+      footer.insertAdjacentHTML('afterbegin', '<img id="footer_logo" src="assets/' + settings.footer_logo + '" alt="' + settings.title + '">');
+    }
   }
 }
 

@@ -120,8 +120,9 @@ body:not(.isLoading) .loading {
   font-style: italic;
 }
 #subtitle {
-  font-size: var(--size-lg);
-  margin-top: var(--size-xs);
+  font-size: var(--size-xl);
+  margin-top: var(--size-sm);
+  font-weight: 600;
 }
 #reset,
 #back {
@@ -139,6 +140,40 @@ body:not(.isLoading) .loading {
   color: var(--colorBody);
 }
 body:not(.filtered) #reset {display: none;}
+
+/* footer */
+#footer {
+  text-align: center;
+  margin-top: calc(var(--size-xxxl) * 2);
+  border-top: var(--borderWidth) solid var(--colorBase);
+  padding-top: var(--size-xxxl);
+}
+#footer_logo {
+  width: 80px;
+  margin-bottom: var(--size-xl);
+}
+#footer p {
+  font-size: var(--size-xl);
+  font-weight: 600;
+}
+#footer_links {
+  list-style: none;
+  margin-top: var(--size-xxxl);
+  /* border-top: var(--borderWidth) solid var(--colorBase);
+  padding-top: var(--size-xxxl); */
+}
+#footer_links li {
+  display: inline-block;
+  margin-right: var(--size-xxl);
+}
+#footer_links li a {
+  display: block;
+}
+#footer_links li img {
+  display: block;
+  width: auto;
+  height: 60px;
+}
 
 /* Search */
 .fuzzy-search {
@@ -163,8 +198,8 @@ body:not(.filtered) #reset {display: none;}
   border-radius: var(--borderRadius);
   border: var(--borderWidth) solid var(--colorBody);
 }
-.list > li.outRange {border-color: var(--colorFalse)}
-.list > li.inRange {border-color: var(--colorTrue)}
+.list:not(#sensors) > li.outRange {border-color: var(--colorFalse)}
+.list:not(#sensors) > li.inRange {border-color: var(--colorTrue)}
 
 #list > li {
   display: flex;
@@ -179,7 +214,7 @@ body:not(.filtered) #reset {display: none;}
 #list .primarySensor {
   text-align: center;
   padding-bottom: var(--size-md);
-  border-bottom: var(--border-sm) solid var(--colorBase);
+  border-bottom: var(--borderWidth) solid var(--colorBase);
 }
 #list > li .primarySensor div:first-child {
   font-size: var(--size-xxl);
@@ -327,10 +362,16 @@ body:not(.filtered) #reset {display: none;}
 }
 #sensors li h3 {
   padding-bottom: var(--size-md);
-  border-bottom: var(--border-sm) solid var(--colorBase);
+  border-bottom: var(--borderWidth) solid var(--colorBase);
 }
 #sensors .value:after {
   content: " ";
+}
+#sensors .outRange h2 {
+  color: var(--colorFalse);
+}
+#sensors .inRange h2 {
+  color: var(--colorFalse);
 }
 .uplot {
   margin-top: var(--size-xl);

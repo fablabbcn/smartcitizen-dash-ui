@@ -28,8 +28,8 @@
 
 let settings = {
   title: "CO-MIDA",
-  logo: "logo-sc.svg",
-  filter: {type: "city", value: "Barcelona" },
+  logo: "logo-random.svg",
+  filter: {type: "tag", value: "habitas" },
   searchBar: false,
   primarySensor: { id: 56, threshold: [60, 80] },
   sensors: [
@@ -53,4 +53,10 @@ let settings = {
     borderRadius: "50%",
   },
   minimalistic: true,
+  footer_logo: "logo-random.svg",
+  footer_description: "An intelligent vertical system co-designed with the users to grow edible plants and produce energy thanks to bacteria",
+  footer_links: [
+    {text: "IAAC", url: "https://iaac.net", logo: "logo-iaac.png"},
+    {text: "Smart Citizen", url: "https://smartcitizen.me/", logo: "logo-sc.svg"}
+  ]
 };
