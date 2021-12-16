@@ -27,17 +27,17 @@ function dashboardInit() {
 function urlGetParameters() {
   const url = new URL(window.location.href);
   const params = url.searchParams;
-  if (isFirstLoad) {
+  if (params.has("id") || params.has("tag") || params.has("city") || params.has("user")) {
+    getFromUrl();
+  } else {
     if ((settings.filter.type) && (settings.filter.value)) {
       settings.filter.type === "tag" ? (tag = settings.filter.value) : (tag = null);
       settings.filter.type === "city" ? (city = settings.filter.value) : (city = null);
       settings.filter.type === "user" ? (user = settings.filter.value) : (user = null);
+      urlAddParameters(settings.filter.type, settings.filter.value);
     } else {
       getFromUrl();
     }
-    isFirstLoad = false;
-  } else {
-    getFromUrl();
   }
   function getFromUrl() {
     params.has("id") === true ? (id = params.get("id")) : (id = null);
@@ -71,28 +71,20 @@ function dashboardUpdate(filterType = null, filterValue = null) {
 
 // get kits from API
 function getKits(filterType = null, filterValue = null) {
-  const cacheName = "dashboardCache";
   const kitsUrl = "https://api.smartcitizen.me/v0/devices/world_map";
-  // add to cache
-  caches.open(cacheName).then(cache => {
-    cache.add(kitsUrl).then(() => { });
-  });
-  // retrieve from cache
-  caches.open(cacheName).then(cache => {
-    cache.match(kitsUrl)
-    .then((response) => {
-      if (response.status == 429) alertUpdate(id, "tooManyRequests");
-      return response.json();
-    })
-    .then((kits) => {
-      displayKits(kits, filterType, filterValue);
-    });
+  https: fetch(kitsUrl)
+  .then((res) => {
+    return res.json();
+  })
+  .then((kits) => {
+    displayKits(kits, filterType, filterValue);
   });
 }
 
 // display kits (index)
 function displayKits(kits, filterType = null, filterValue = null) {
   document.getElementById("main").innerHTML = "";
+  document.body.removeAttribute('id');
   document.body.classList.add('index');
   if (settings.minimalistic) {
     document.body.classList.remove('minimalistic');
@@ -145,7 +137,8 @@ function displayKits(kits, filterType = null, filterValue = null) {
       // Add 'is active' value
       let lastReading = new Date(kit.last_reading_at);
       let dateDifferenceMinutes = Math.abs(Math.round((dateNow.getTime() - lastReading.getTime()) / 1000 / 60));
-      if (dateDifferenceMinutes < 30) {
+      // 1 day
+      if (dateDifferenceMinutes < 1440) {
         kit.isActive = true;
       } else {
         kit.isActive = false;
@@ -240,26 +233,28 @@ function displayKits(kits, filterType = null, filterValue = null) {
     if (typeof socketDetail !== 'undefined') {socketDetail.off();}
     const socketIndex = io.connect("wss://ws.smartcitizen.me", { reconnect: true });
     socketIndex.on("data-received", d => {
-      target = document.getElementById(d.id);
-      if (target !== null) {
-        for (let i = 0; i < d.data.sensors.length; i++) {
-          if (d.data.sensors[i].id === settings.primarySensor.id) {
-            targetValue = target.getElementsByClassName("primaryValue")[0];
-            if (targetValue === undefined) {
-              let primarySensorHtml = '<div class="primarySensor"><div><span class="primaryValue"></span> ' + primarySensorUnit + '</div><div>' + primarySensorDesc + '</div></div>';
-              target.innerHTML += primarySensorHtml;
+      if (document.body.classList.contains("index")) {
+        target = document.getElementById(d.id);
+        if (target !== null) {
+          for (let i = 0; i < d.data.sensors.length; i++) {
+            if (d.data.sensors[i].id === settings.primarySensor.id) {
               targetValue = target.getElementsByClassName("primaryValue")[0];
+              if (targetValue === undefined) {
+                let primarySensorHtml = '<div class="primarySensor"><div><span class="primaryValue"></span> ' + primarySensorUnit + '</div><div>' + primarySensorDesc + '</div></div>';
+                target.innerHTML += primarySensorHtml;
+                targetValue = target.getElementsByClassName("primaryValue")[0];
+              }
+              targetValue.textContent = d.data.sensors[i].value;
+              targetUpdate = target.getElementsByClassName("lastUpdate")[0];
+              if (targetUpdate !== undefined) {
+                let dateNow = new Date();
+                targetUpdate.textContent = dateNow.toLocaleString("en-GB");
+                console.log(d.name + ': updated!');
+              }
+              target.classList.remove("updated", "inRange", "outRange");
+              target.classList.add("updated", primarySensorCheck(d.data.sensors[i].value));
+              break;
             }
-            targetValue.textContent = d.data.sensors[i].value;
-            targetUpdate = target.getElementsByClassName("lastUpdate")[0];
-            if (targetUpdate !== undefined) {
-              let dateNow = new Date();
-              targetUpdate.textContent = dateNow.toLocaleString("en-GB");
-              console.log(d.name + ': updated!');
-            }
-            target.classList.remove("updated", "inRange", "outRange");
-            target.classList.add("updated", primarySensorCheck(d.data.sensors[i].value));
-            break;
           }
         }
       }
@@ -287,7 +282,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
   
   function primarySensorCheck(value) {
     let sensorStatus;
-    if ((settings.primarySensor.threshold[0] < value) && (value < settings.primarySensor.threshold[1])) {
+    if ((settings.primarySensor.threshold[0] <= value) && (value <= settings.primarySensor.threshold[1])) {
       sensorStatus = 'inRange'
     } else {
       sensorStatus = 'outRange'
@@ -301,7 +296,6 @@ function getKit(id) {
   const kitUrl = `https://api.smartcitizen.me/v0/devices/${id}`;
   https: fetch(kitUrl)
   .then((res) => {
-    if (res.status == 429) alertUpdate(id, "tooManyRequests");
     return res.json();
   })
   .then((kit) => {
@@ -320,10 +314,21 @@ function displayKit(kit) {
   
   function detailInterface() {
     let header = document.getElementById('header');
+    // id
+    document.body.removeAttribute('id');
+    document.body.setAttribute('id', kit.id);
     // title
     header.insertAdjacentHTML('beforeend', '<div id="title"><span>' + settings.title + '</span><span>' + kit.name + '</span></div>');
     // subtitle
     header.insertAdjacentHTML('beforeend', '<div id="subtitle">' + kit.description + '</div>');
+    // (in)active
+    let dateNow = new Date();
+    let lastReading = new Date(kit.last_reading_at);
+    let dateDifferenceMinutes = Math.abs(Math.round((dateNow.getTime() - lastReading.getTime()) / 1000 / 60));
+    // 1 day
+    if (dateDifferenceMinutes > 1440) {
+      header.insertAdjacentHTML('beforeend', '<div id="status">This sensor is inactive</div>');
+    }
     // reset
     header.insertAdjacentHTML('beforeend', '<div id="back">← Back to index</div>');
     document.getElementById("back").onclick = function () {
@@ -333,7 +338,8 @@ function displayKit(kit) {
     document.getElementById("main").insertAdjacentHTML('beforeend', '<a href="https://smartcitizen.me/kits/' + kit.id + '" class="more" target="_blank">More info on this kit&nbsp↗</a>');
     // main class
     for (let i = 0; i < kit.user_tags.length; i++) {
-      document.getElementById("main").classList.add(kit.user_tags[i])
+      let tag = kit.user_tags[i].replace(/ /g,"_");
+      document.getElementById("main").classList.add(tag);
     }
   }
   
@@ -341,7 +347,7 @@ function displayKit(kit) {
     document.getElementById("main").insertAdjacentHTML('afterbegin', '<ul class="list" id="sensors"></div>');
     let d = new Date();
     let today = d.toISOString().slice(0, 10);
-    let then = new Date(d.setDate(d.getDate()-30)).toISOString().slice(0, 10); // 5 days ago
+    let then = new Date(d.setDate(d.getDate()-7)).toISOString().slice(0, 10); // 7 days ago
     for (let i = 0; kit.data.sensors.length > i; i++) {
       const sensorUrl = `https://api.smartcitizen.me/v0/devices/${kit.id}/readings?sensor_id=${kit.data.sensors[i].id}&rollup=1h&from=${then}&to=${today}`;
       https: fetch(sensorUrl)
@@ -374,7 +380,7 @@ function displayKit(kit) {
             if (settings.sensors) {
               for (let i = 0; i < settings.sensors.length; i++) {
                 if (settings.sensors[i].id == sensor_id) {
-                  if ((settings.sensors[i].threshold[0] < value) && (value < settings.sensors[i].threshold[1])) {
+                  if ((settings.sensors[i].threshold[0] <= value) && (value <= settings.sensors[i].threshold[1])) {
                     sensorStatus = 'inRange'
                   } else {
                     sensorStatus = 'outRange'
@@ -384,30 +390,35 @@ function displayKit(kit) {
             } else {
               sensorStatus = 'noRange'
             }
-            document.getElementById("sensors").insertAdjacentHTML('beforeend', '<li id="' + kit.data.sensors[i].id + '" class="' + sensorStatus + '"></li>');
+            let sensors = document.getElementById("sensors");
+            if (sensors) {
+              sensors.insertAdjacentHTML('beforeend', '<li id="' + kit.data.sensors[i].id + '" class="' + sensorStatus + '"></li>');
+            }
             let canvasParent = document.getElementById(kit.data.sensors[i].id);
-            canvasParent.insertAdjacentHTML('beforeend', '<h2><span class="value">' + value + '</span>' + kit.data.sensors[i].unit + '</h2>');
-            canvasParent.insertAdjacentHTML('beforeend', '<h3>' + kit.data.sensors[i].description + '</h3>');
-            let padding = parseInt(window.getComputedStyle(canvasParent, null).getPropertyValue('padding-left'), 10) * 2;
-            let canvasWidth = canvasParent.offsetWidth - padding;
-            const canvasHeight = (canvasWidth / 15) * 10;
-            const opts = {
-              class: "chart",
-              width: canvasWidth,
-              height: canvasHeight,
-              series: [
-                {},
-                {
-                  spanGaps: true,
-                  label: sensor.sensor_key,
-                  width: 1,
-                  stroke: settings.styles.colorBase,
-                  fill: settings.styles.colorBase,
-                  width: 1,
-                },
-              ]
-            };
-            let uplot = new uPlot(opts, data, document.getElementById(kit.data.sensors[i].id));
+            if (canvasParent) {
+              canvasParent.insertAdjacentHTML('beforeend', '<h2><span class="value">' + value + '</span>' + kit.data.sensors[i].unit + '</h2>');
+              canvasParent.insertAdjacentHTML('beforeend', '<h3>' + kit.data.sensors[i].description + '</h3>');
+              let padding = parseInt(window.getComputedStyle(canvasParent, null).getPropertyValue('padding-left'), 10) * 2;
+              let canvasWidth = canvasParent.offsetWidth - padding;
+              const canvasHeight = (canvasWidth / 15) * 10;
+              const opts = {
+                class: "chart",
+                width: canvasWidth,
+                height: canvasHeight,
+                series: [
+                  {},
+                  {
+                    spanGaps: true,
+                    label: sensor.sensor_key,
+                    width: 1,
+                    stroke: settings.styles.colorBase,
+                    fill: settings.styles.colorBase,
+                    width: 1,
+                  },
+                ],
+              };
+              let uplot = new uPlot(opts, data, document.getElementById(kit.data.sensors[i].id));
+            }
           }
         }
       });
@@ -424,12 +435,12 @@ function displayKit(kit) {
           let elem = document.getElementById(id);
           if (elem) {
             let currentValue = elem.getElementsByClassName("value")[0];
-            let newValue = d.data.sensors[i].value;
+            let newValue = Math.round(d.data.sensors[i].value);
             currentValue.innerHTML = newValue;
             let sensorStatus;
             for (let i = 0; i < settings.sensors.length; i++) {
               if (id == settings.sensors[i].id) {
-                if ((settings.sensors[i].threshold[0] < newValue) && (newValue < settings.sensors[i].threshold[1])) {
+                if ((settings.sensors[i].threshold[0] <= newValue) && (newValue <= settings.sensors[i].threshold[1])) {
                   sensorStatus = 'inRange'
                 } else {
                   sensorStatus = 'outRange'
@@ -478,34 +489,6 @@ function globalInterface() {
     document.getElementById("logo").onclick = function () {
       resetFilters();
     };
-  }
-  // footer
-  if (document.getElementById("footer")) {
-    document.getElementById("footer").remove();
-  }
-  let footer = document.createElement("footer");
-  footer.id = "footer"
-  document.body.append(footer);
-  if (settings.footer_links) {
-    if (! document.getElementById("footer_links")) {
-      let footer_links = document.createElement("ul");
-      footer_links.id = "footer_links"
-      footer.append(footer_links);
-      for (let i = 0; i < settings.footer_links.length; i++) {
-        footer_links.insertAdjacentHTML('afterbegin', '<li><a href="' + settings.footer_links[i].url + '" target="_blank"><img src="assets/' + settings.footer_links[i].logo + '" alt="' + settings.footer_links[i].text + '"></a></li>');
-      }
-      
-    }
-  }
-  if (settings.footer_description) {
-    if (! document.getElementById("footer_description")) {
-      footer.insertAdjacentHTML('afterbegin', '<p>' + settings.footer_description + '</p>');
-    }
-  }
-  if (settings.footer_logo) {
-    if (! document.getElementById("footer_logo")) {
-      footer.insertAdjacentHTML('afterbegin', '<img id="footer_logo" src="assets/' + settings.footer_logo + '" alt="' + settings.title + '">');
-    }
   }
 }
 
