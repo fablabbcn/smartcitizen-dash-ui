@@ -85,6 +85,7 @@ function getKits(filterType = null, filterValue = null) {
 function displayKits(kits, filterType = null, filterValue = null) {
   document.getElementById("main").innerHTML = "";
   document.body.removeAttribute('id');
+  document.body.removeAttribute('isGlobal');
   document.body.classList.add('index');
   if (settings.minimalistic) {
     document.body.classList.remove('minimalistic');
@@ -107,6 +108,8 @@ function displayKits(kits, filterType = null, filterValue = null) {
     listHtml.appendChild(elemHtml(kit));
     kitsCounter++;
   }
+  // global kit
+  isolateGlobalKit();
   searchBar();
   webSocketIndexUpdate();
   
@@ -119,7 +122,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
       header.insertAdjacentHTML('beforeend', '<div id="title">' + settings.title + '</div>');
     }
     // subtitle
-    header.insertAdjacentHTML('beforeend', '<div id="subtitle">' + activeCounter + ' active sensor kits today, of a total of ' + kitsFiltered.length + '</div>');
+    header.insertAdjacentHTML('beforeend', '<div id="subtitle">' + activeCounter + ' kits de sensores activos hoy, de un total de ' + kitsFiltered.length + '</div>');
     // reset
     if (!settings.filter.type.length >= 1) {
       header.insertAdjacentHTML('beforeend', '<div id="reset">Reset filter</div>');
@@ -163,6 +166,12 @@ function displayKits(kits, filterType = null, filterValue = null) {
     kitsFiltered.sort(function (a, b) {
       return new Date(b.last_reading_at) - new Date(a.last_reading_at);
     });
+    
+    // Sort kits by id
+    // kitsFiltered.sort(function (a, b) {
+    //   return a.id - b.id;
+    // });
+
     return { activeCounter, kitsFiltered }
   }
   
@@ -222,6 +231,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
               target.classList.add(primarySensorCheck(primarySensorValue));
               target.innerHTML += primarySensorHtml;
             }
+            moistureGradients(kit.id,primarySensorValue)
             break;
           }
         }
@@ -253,6 +263,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
               }
               target.classList.remove("updated", "inRange", "outRange");
               target.classList.add("updated", primarySensorCheck(d.data.sensors[i].value));
+              moistureGradients(target, targetValue);
               break;
             }
           }
@@ -276,7 +287,6 @@ function displayKits(kits, filterType = null, filterValue = null) {
           valueNames: ['name', 'city', 'tag', 'id', 'lastUpdate']
         });
       }
-      
     }
   }
   
@@ -287,6 +297,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
     } else {
       sensorStatus = 'outRange'
     }
+
     return sensorStatus;
   }
 }
@@ -309,6 +320,8 @@ function displayKit(kit) {
   document.body.classList.remove('index');
   detailInterface();
   kitData(kit);
+  addAdditionalContent(kit.id);
+  detailGlobalKit(kit.id);
   loading(false);
   webSocketDetailUpdate();
   
@@ -328,14 +341,16 @@ function displayKit(kit) {
     // 1 day
     if (dateDifferenceMinutes > 1440) {
       header.insertAdjacentHTML('beforeend', '<div id="status">This sensor is inactive</div>');
-    }
+    } 
     // reset
     header.insertAdjacentHTML('beforeend', '<div id="back">← Back to index</div>');
     document.getElementById("back").onclick = function () {
       resetFilters();
     };
     // read more
-    document.getElementById("main").insertAdjacentHTML('beforeend', '<a href="https://smartcitizen.me/kits/' + kit.id + '" class="more" target="_blank">More info on this kit&nbsp↗</a>');
+    if (settings.minimalistic != true) {
+      document.getElementById("main").insertAdjacentHTML('beforeend', '<a href="https://smartcitizen.me/kits/' + kit.id + '" class="more" target="_blank">More info on this kit&nbsp↗</a>');
+    }
     // main class
     for (let i = 0; i < kit.user_tags.length; i++) {
       let tag = kit.user_tags[i].replace(/ /g,"_");
@@ -362,7 +377,7 @@ function displayKit(kit) {
           data[0].push(date);
           data[1].push(reading[1]);
         }
-        if (settings.sensors) {
+        if ((settings.sensors) && (kit.id != settingsCustom.globalKit.id)) {
           for (let i = 0; i < settings.sensors.length; i++) {
             if (sensor.sensor_id == settings.sensors[i].id) {
               displaySensor();
