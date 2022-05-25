@@ -384,13 +384,22 @@ function displayKit(kit) {
                 <span class="button-text">Refresh</span>\
             </button>\
             <div class="sidebar-settings">\
-            <label class="switch">\
-              <input id="toggle-auto-update" type="checkbox" checked=true></input>\
-              <span class="slider round"></span>\
-            </label>\
-            <label class="sidebar-text">\
-              AUTO UPDATE\
-            </label>\
+              <label class="switch">\
+                <input id="toggle-auto-update" type="checkbox" checked=true></input>\
+                <span class="slider round"></span>\
+              </label>\
+              <label class="sidebar-text">\
+                AUTO UPDATE\
+              </label>\
+            </div>\
+            <div class="sidebar-settings">\
+              <label class="switch">\
+                <input id="toggle-graphs" type="checkbox" checked=true></input>\
+                <span class="slider round"></span>\
+              </label>\
+              <label class="sidebar-text">\
+                SHOW GRAPHS\
+              </label>\
             </div>\
             <h4 class="sidebar-header">Tidy this up</h3>\
             <p class="sidebar-content sidebar-text">Select which metrics are shown and reorder the graphs here</p>\
@@ -402,7 +411,9 @@ function displayKit(kit) {
       '<div id="draggable-sensor-list" class="sidebar-item-hidden"></div>');
     for (let i = 0; i < kit.data.sensors.length; i++) {
       document.getElementById('draggable-sensor-list').insertAdjacentHTML('afterbegin', 
-        '<div class="draggable-sensor-item" id="'+kit.data.sensors[i].id+'">' + kit.data.sensors[i].name.split("-").pop() + '<span style="font-weight:lighter"> (' + kit.data.sensors[i].name.split("-")[0].trimRight() + ')</span>' +'</div>');
+        '<div class="draggable-sensor-item" id="'+kit.data.sensors[i].id+'">'
+        + kit.data.sensors[i].name.split("-").pop() + '<span style="font-weight:lighter"> ('
+        + kit.data.sensors[i].name.split("-")[0].trimRight() + ')</span>' +'</div>');
     }
 
     document.getElementById("sidebar-button").onclick = function () {
@@ -422,6 +433,45 @@ function displayKit(kit) {
       } else {
         console.log("socketDetail off!");
         socketDetail.off();
+      }
+    }
+
+    document.getElementById("toggle-graphs").onchange = function() {
+      console.log(this.checked);
+      if (this.checked === true) {
+        console.log("socketDetail on!");
+        plotelements = document.querySelectorAll('.uplot');
+        for (var i = 0; i < plotelements.length; i++) {
+          plotelements[i].classList.remove('noshow');
+        }
+
+        latestval = document.querySelectorAll('.latest-value');
+        for (var i = 0; i < latestval.length; i++) {
+          latestval[i].classList.remove('nodecoration');
+          latestval[i].classList.remove('breathe');
+        }
+
+        sensorelements = document.querySelectorAll('.sensor-item');
+        for (var i = 0; i < sensorelements.length; i++) {
+          sensorelements[i].classList.remove('large-card');
+        }
+      } else {
+        console.log("socketDetail off!");
+        plotelements = document.querySelectorAll('.uplot');
+        for (var i = 0; i < plotelements.length; i++) {
+          plotelements[i].classList.add('noshow');
+        }
+
+        latestval = document.querySelectorAll('.latest-value');
+        for (var i = 0; i < latestval.length; i++) {
+          latestval[i].classList.add('nodecoration');
+          latestval[i].classList.add('breathe');
+        }
+
+        sensorelements = document.querySelectorAll('.sensor-item');
+        for (var i = 0; i < sensorelements.length; i++) {
+          sensorelements[i].classList.add('large-card');
+        }
       }
     }
 
@@ -451,27 +501,6 @@ function displayKit(kit) {
         }
 
         order(document.getElementById('sensors'), array);
-
-        function order(ul, array) {
-          // get html children elements of li
-          // in case of ul children will be li
-          // ` Array.from` will hell helps to convert them into array
-          var elements = Array.from(ul.children);
-
-          // sort them with the same code
-          elements.sort(function(a, b){
-            var va = array.indexOf(a.id),
-                vb = array.indexOf(b.id);
-            return vb < va ? 1 : -1;
-            // return array.indexOf(a) - array.indexOf(b);
-          });
-
-          // append back to update the order
-          // forEach can be used to update since it's in array format
-          elements.forEach(function(ele) {
-            ul.appendChild(ele)
-          });
-        }
       }
     });
   }
@@ -511,7 +540,7 @@ function displayKit(kit) {
   
   function kitData(kit) {
     document.getElementById("main").insertAdjacentHTML('afterbegin',
-     '<ul class="list" id="sensors"></div>');    
+     '<ul class="list" id="sensors"></div>');
 
     let d = new Date();
     let rightNow = d.toISOString().slice(0, 19)+'Z';
@@ -548,6 +577,14 @@ function displayKit(kit) {
         } else {
           displaySensor();
         }
+
+        var array = [];
+        var idsInOrder = document.getElementById("draggable-sensor-list").children;
+        for (let j=0; j<idsInOrder.length; j++) {
+          array.push(idsInOrder[j].id);
+        }
+
+        order(document.getElementById('sensors'), array);
         
         function displaySensor() {
           if (sensorData != undefined && sensorData[0].length > 0) {
@@ -570,17 +607,22 @@ function displayKit(kit) {
             }
 
             let sensors = document.getElementById("sensors");
+            console.log(sensors)
             
             if (sensors) {
-              sensors.insertAdjacentHTML('beforeend', '<li id="' + kit.data.sensors[i].id + '" class="' + sensorStatus + '"></li>');
+              sensors.insertAdjacentHTML('beforeend', '<li id="' + kit.data.sensors[i].id + '" class="sensor-item ' + sensorStatus + '"></li>');
             }
             
             let canvasParent = document.getElementById(kit.data.sensors[i].id);
             var style = getComputedStyle(document.body);
 
             if (canvasParent) {
-              canvasParent.insertAdjacentHTML('beforeend', '<h2><span class="value">' + kit.data.sensors[i].name +  '</h2>');
-              canvasParent.insertAdjacentHTML('beforeend', '<h3><span class="value">' + value + '</span>' + kit.data.sensors[i].unit + '</h3>');
+              canvasParent.insertAdjacentHTML('beforeend', '<h2><span class="value">'
+              + kit.data.sensors[i].name.split("-").pop() + '<span style="font-weight:lighter"> ('
+              + kit.data.sensors[i].name.split("-")[0].trimRight() + ')</h2>');
+
+              canvasParent.insertAdjacentHTML('beforeend', 
+                '<h3 class="latest-value"><span class="value">' + value + '</span>' + kit.data.sensors[i].unit + '</h3>');
               
               const opts = {
                 class: "chart",
@@ -885,4 +927,25 @@ function getSize(canvasParent) {
     // width: window.innerWidth/2 - 100,
     // height: window.innerHeight/2 - 100,
   }
+}
+
+function order(ul, array) {
+  // get html children elements of li
+  // in case of ul children will be li
+  // ` Array.from` will hell helps to convert them into array
+  var elements = Array.from(ul.children);
+
+  // sort them with the same code
+  elements.sort(function(a, b){
+    var va = array.indexOf(a.id),
+        vb = array.indexOf(b.id);
+    return vb < va ? 1 : -1;
+    // return array.indexOf(a) - array.indexOf(b);
+  });
+
+  // append back to update the order
+  // forEach can be used to update since it's in array format
+  elements.forEach(function(ele) {
+    ul.appendChild(ele)
+  });
 }
