@@ -7,7 +7,9 @@ let settings = {
   extraArea: true,
   activeByMinutes: 0,
   maxDataPoints: 500,
+  defaultDays: 7,
   requestInterval: '60', // In Minutes
+  dates: ["", ""],
   // primarySensor: { id: 50, threshold: [60, 100] },
   // sensors: [
   //   {id: 55, threshold: [5, 30] },

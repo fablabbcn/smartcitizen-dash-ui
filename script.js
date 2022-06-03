@@ -290,7 +290,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
           if (targetUpdate !== undefined) {
             let dateNow = new Date();
             targetUpdate.textContent = 'LAST UPDATE: ' + dateNow.toLocaleString("en-GB");
-            console.log(d.name + ': updated!');
+            // console.log(d.name + ': updated!');
           }
         }
       }
@@ -366,6 +366,13 @@ function displayKit(kit) {
   sideBar(kit);
   detailInterface();
 
+  let d = new Date();
+  let rightNow = d.toISOString().slice(0, 19)+'Z';
+  // 7 days ago
+  let then = new Date(d.setDate(d.getDate()-settings.defaultDays)).toISOString().slice(0, 10);
+  settings.dates [0] = then;
+  settings.dates [1] = rightNow;
+
   kitData(kit);
   loading(false);
   webSocketDetailUpdate();
@@ -374,15 +381,12 @@ function displayKit(kit) {
     //side bar
     document.getElementById("main").insertAdjacentHTML('afterbegin',
         '<div id="sidebar" class="sidebar-small">\
+          <div id="points-snackbar">That\'s too many points!</div>\
           <button id="sidebar-button">\
               🛠️\
           </button>\
           <div id="sidebar-items" class="sidebar-item-hidden">\
             <h3 class="sidebar-header">Dashboard settings</h3>\
-            <input type="number" id="request-interval" value="60" min="5" max="1440">\
-            <button type="button" id="request-interval-button">\
-                <span class="button-text">Refresh</span>\
-            </button>\
             <div class="sidebar-settings">\
               <label class="switch">\
                 <input id="toggle-auto-update" type="checkbox" checked=true></input>\
@@ -401,11 +405,23 @@ function displayKit(kit) {
                 SHOW GRAPHS\
               </label>\
             </div>\
+            <div id="datepicker" class="sidebar-settings">\
+              <input type=hidden id="ranged">\
+            </div>\
+            <div id="freqpicker" class="sidebar-settings">\
+              <label id="request-interval-label" for="request-interval">Interval (minutes)</label>\
+              <input type="number" id="request-interval" value="60" min="5" max="1440">\
+              <button type="button" id="refresh-button">\
+                  <span class="button-text">Refresh</span>\
+              </button>\
+            </div>\
             <h4 class="sidebar-header">Tidy this up</h3>\
             <p class="sidebar-content sidebar-text">Select which metrics are shown and reorder the graphs here</p>\
           </div>\
         </div>'
     )
+
+    document.getElementById("refresh-button").disabled = true;
 
     document.getElementById("sidebar").insertAdjacentHTML('beforeend', 
       '<div id="draggable-sensor-list" class="sidebar-item-hidden"></div>');
@@ -415,6 +431,63 @@ function displayKit(kit) {
         + kit.data.sensors[i].name.split("-").pop() + '<span style="font-weight:lighter"> ('
         + kit.data.sensors[i].name.split("-")[0].trimRight() + ')</span>' +'</div>');
     }
+
+    var ranged = new Datepicker('#ranged', {
+      inline: true,
+      ranged: true,
+
+      // 10 days in the future
+      max: (function(){
+        var date = new Date();
+        date.setDate(date.getDate());
+        return date;
+      })(),
+
+      // weekStart: 1,
+      // time: true
+
+      onChange: function( event, ui) {
+        if (this._selected.length > 1) {
+          let d = new Date();
+
+          let oldest = new Date(Math.min.apply(Math, this._selected));
+          settings.dates [0] = oldest.toISOString().slice(0, 19)+'Z';
+
+          let latest = new Date(Math.max.apply(Math, this._selected));
+
+          if (Math.floor((d - latest) / 86400000) > 0){
+            // console.log('use latest')
+            settings.dates [1] = latest.toISOString().slice(0, 19)+'Z';
+          } else {
+            // console.log('use now')
+            settings.dates [1] = new Date().toISOString().slice(0, 19)+'Z';
+          }
+
+          var n_points = Math.round((latest - oldest) / 60000) / settings.requestInterval; // minutes
+
+          // console.log(n_points);
+          if (n_points > settings.maxDataPoints) {
+            var allowedRequestInterval = Math.round((latest - oldest) / 60000 / settings.maxDataPoints );
+            document.getElementById("request-interval").min = allowedRequestInterval;
+            document.getElementById("request-interval").value = allowedRequestInterval;
+            popUpToast('points-snackbar');
+          }
+
+          document.getElementById("refresh-button").disabled = false;
+
+          let limit = new Date(d.setDate(d.getDate()-1))
+
+          // console.log(settings.dates);
+          if (latest < limit ) {
+            document.getElementById("toggle-auto-update").checked = false;
+            socketDetail.off();
+          } else {
+            document.getElementById("toggle-auto-update").checked = true;
+            webSocketDetailUpdate();
+          }
+        }
+      }
+    });
 
     document.getElementById("sidebar-button").onclick = function () {
       document.getElementById("sidebar").classList.toggle('sidebar-small');
@@ -426,24 +499,23 @@ function displayKit(kit) {
     }
 
     document.getElementById("toggle-auto-update").onchange = function() {
-      console.log(this.checked);
+      // console.log(this.checked);
       if (this.checked === true) {
-        console.log("socketDetail on!");
         webSocketDetailUpdate();
       } else {
-        console.log("socketDetail off!");
         socketDetail.off();
       }
     }
 
     document.getElementById("toggle-graphs").onchange = function() {
-      console.log(this.checked);
+      // console.log(this.checked);
       if (this.checked === true) {
-        console.log("socketDetail on!");
         plotelements = document.querySelectorAll('.uplot');
         for (var i = 0; i < plotelements.length; i++) {
           plotelements[i].classList.remove('noshow');
         }
+        document.getElementById("datepicker").classList.remove('noshow');
+        document.getElementById("freqpicker").classList.remove('noshow');
 
         latestval = document.querySelectorAll('.latest-value');
         for (var i = 0; i < latestval.length; i++) {
@@ -456,11 +528,12 @@ function displayKit(kit) {
           sensorelements[i].classList.remove('large-card');
         }
       } else {
-        console.log("socketDetail off!");
         plotelements = document.querySelectorAll('.uplot');
         for (var i = 0; i < plotelements.length; i++) {
           plotelements[i].classList.add('noshow');
         }
+        document.getElementById("datepicker").classList.add('noshow');
+        document.getElementById("freqpicker").classList.add('noshow');
 
         latestval = document.querySelectorAll('.latest-value');
         for (var i = 0; i < latestval.length; i++) {
@@ -475,14 +548,19 @@ function displayKit(kit) {
       }
     }
 
-    document.getElementById("request-interval-button").onclick = function () {
-      this.classList.toggle('button-loading');
+    document.getElementById('request-interval').onchange = function () {
       var requestInterval = document.getElementById("request-interval").value;
       if (requestInterval !== settings.requestInterval) {
+        document.getElementById("refresh-button").disabled = false;
         settings.requestInterval = requestInterval;
-        document.getElementById("sensors").remove();
-        kitData(kit);
-      }
+      };
+    }
+
+    document.getElementById("refresh-button").onclick = function () {
+      this.classList.toggle('button-loading');
+      document.getElementById("sensors").remove();
+      kitData(kit);
+      document.getElementById("refresh-button").disabled = true;
       this.classList.toggle('button-loading');
     }
 
@@ -542,12 +620,8 @@ function displayKit(kit) {
     document.getElementById("main").insertAdjacentHTML('afterbegin',
      '<ul class="list" id="sensors"></div>');
 
-    let d = new Date();
-    let rightNow = d.toISOString().slice(0, 19)+'Z';
-    let then = new Date(d.setDate(d.getDate()-7)).toISOString().slice(0, 10); // 7 days ago
-    
     for (let i = 0; i < kit.data.sensors.length; i++) {
-      const sensorUrl = `https://api.smartcitizen.me/v0/devices/${kit.id}/readings?sensor_id=${kit.data.sensors[i].id}&rollup=${settings.requestInterval}m&from=${then}&to=${rightNow}`;
+      const sensorUrl = `https://api.smartcitizen.me/v0/devices/${kit.id}/readings?sensor_id=${kit.data.sensors[i].id}&rollup=${settings.requestInterval}m&from=${settings.dates[0]}&to=${settings.dates[1]}`;
       https: fetch(sensorUrl)
       .then((res) => {
         return res.json();
@@ -607,7 +681,6 @@ function displayKit(kit) {
             }
 
             let sensors = document.getElementById("sensors");
-            console.log(sensors)
             
             if (sensors) {
               sensors.insertAdjacentHTML('beforeend', '<li id="' + kit.data.sensors[i].id + '" class="sensor-item ' + sensorStatus + '"></li>');
@@ -733,7 +806,7 @@ function displayKit(kit) {
 
             elem.classList.remove("updated", "inRange", "outRange");
             elem.classList.add("updated", sensorStatus);
-            console.log(d.data.sensors[i].name + '(id = ' + id + '): updated! New value: ' + newValue);
+            // console.log(d.data.sensors[i].name + '(id = ' + id + '): updated! New value: ' + newValue);
           }
         }
       }
@@ -793,7 +866,7 @@ function resetFilters() {
 
 /* MODAL */
 function extrasPopup() {
-  console.log('opening pop-up');
+  // console.log('opening pop-up');
 
   if (!document.getElementById("extras-modal")) {
     document.getElementById("main").insertAdjacentHTML('afterbegin', '<div id="extras-modal"></div>');
@@ -837,9 +910,9 @@ function extrasPopup() {
 }
 
 function morePopup(kit) {
-  console.log('opening pop-up');
+  // console.log('opening pop-up');
 
-  console.log(kit);
+  // console.log(kit);
   if (!document.getElementById("more-modal")) {
     document.getElementById("main").insertAdjacentHTML('afterbegin', '<div id="more-modal"></div>');
     modal = document.getElementById("more-modal");
@@ -890,7 +963,7 @@ function morePopup(kit) {
 }
 
 function downloadData() {
-  console.log(currentData)
+  // console.log(currentData)
   var json = currentData
   var fields = Object.keys(json[0])
   var replacer = function(key, value) { return value === null ? '' : value } 
@@ -949,3 +1022,14 @@ function order(ul, array) {
     ul.appendChild(ele)
   });
 }
+
+function popUpToast(element_name) {
+  // Get the snackbar DIV
+  var x = document.getElementById(element_name);
+
+  // Add the "show" class to DIV
+  x.className = "show";
+
+  // After 3 seconds, remove the show class from DIV
+  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+} 

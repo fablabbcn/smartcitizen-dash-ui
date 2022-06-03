@@ -231,8 +231,51 @@ h4.sidebar-header {
   justify-content: space-around;
   width: 68%;
   margin: 30px auto;
-  align-content: center;
+  align-items: center;
   vertical-align: middle;
+}
+
+#points-snackbar {
+  visibility: hidden; /* Hidden by default. Visible on click */
+  width: 30%; /* Set a default minimum width */
+  /*margin-left: -50%;*/
+  color: var(--colorBase); /* White text color */
+  text-align: center; /* Centered text */
+  padding: 16px; /* Padding */
+  position: fixed; /* Sit on top of the screen */
+  z-index: 1; /* Add a z-index if needed */
+  top: 0px;
+  background: #e67171;
+}
+
+/* Show the snackbar when clicking on a button (class added with JavaScript) */
+#points-snackbar.show {
+  visibility: visible; /* Show the snackbar */
+  /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+  However, delay the fade out process for 2.5 seconds */
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+/* Animations to fade the snackbar in and out */
+@-webkit-keyframes fadein {
+  from {top: -30px; opacity: 0;}
+  to {top: 0px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {top: -30px; opacity: 0;}
+  to {top: 0px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {top: 0px; opacity: 1;}
+  to {top: -30px; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {top: 0px; opacity: 1;}
+  to {top: -30; opacity: 0;}
 }
 
 #request-interval{
@@ -245,8 +288,21 @@ h4.sidebar-header {
   height: 24px;
 }
 
-#request-interval-button {
+#request-interval-label{
+  color: var(--colorBackground);
+  margin-right: 10px;
+}
+
+
+#refresh-button {
   position: relative;
+}
+
+#refresh-button:disabled,
+#refresh-button[disabled]{
+  border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #666666;
 }
 
 /*#request-interval-button:active {
@@ -293,8 +349,7 @@ h4.sidebar-header {
   position: relative;
   display: inline-block;
   width: 42px;
-  /*height: 18px;*/
-  vertical-align: middle;
+  height: 20px;
   /*margin-right: -98px;*/
 }
 
@@ -321,10 +376,10 @@ h4.sidebar-header {
 .slider:before {
   position: absolute;
   content: "";
-  height: 16px;
-  width: 16px;
+  height: 15px;
+  width: 15px;
   left: 4px;
-  bottom: 3px;
+  bottom: 2.5px;
   background-color: white;
   -webkit-transition: .4s;
   transition: .4s;
@@ -339,9 +394,9 @@ input:focus + .slider {
 }
 
 input:checked + .slider:before {
-  -webkit-transform: translateX(18px);
-  -ms-transform: translateX(18px);
-  transform: translateX(18px);
+  -webkit-transform: translateX(20px);
+  -ms-transform: translateX(20px);
+  transform: translateX(20px);
 }
 
 /* Rounded sliders */
