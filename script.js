@@ -381,7 +381,7 @@ function displayKit(kit) {
     //side bar
     document.getElementById("main").insertAdjacentHTML('afterbegin',
         '<div id="sidebar" class="sidebar-small">\
-          <div id="points-snackbar">That\'s too many points!</div>\
+          <div id="points-snackbar">Woah! That\'s too many points!</div>\
           <button id="sidebar-button">\
               🛠️\
           </button>\
@@ -470,6 +470,7 @@ function displayKit(kit) {
             var allowedRequestInterval = Math.round((latest - oldest) / 60000 / settings.maxDataPoints );
             document.getElementById("request-interval").min = allowedRequestInterval;
             document.getElementById("request-interval").value = allowedRequestInterval;
+            settings.requestInterval = allowedRequestInterval;
             popUpToast('points-snackbar');
           }
 
