@@ -8,7 +8,9 @@ let settings = {
   activeByMinutes: 0,
   maxDataPoints: 500,
   defaultDays: 7,
-  requestInterval: '60', // In Minutes
+  requestInterval: 60, // In Minutes
+  minRequestInterval: 5,
+  minDRequestInterval: 5,
   dates: ["", ""],
   // primarySensor: { id: 50, threshold: [60, 100] },
   // sensors: [

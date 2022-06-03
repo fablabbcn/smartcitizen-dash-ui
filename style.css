@@ -235,6 +235,7 @@ h4.sidebar-header {
   vertical-align: middle;
 }
 
+#frequent-snackbar,
 #points-snackbar {
   visibility: hidden; /* Hidden by default. Visible on click */
   width: 30%; /* Set a default minimum width */
@@ -249,6 +250,7 @@ h4.sidebar-header {
 }
 
 /* Show the snackbar when clicking on a button (class added with JavaScript) */
+#frequent-snackbar.show,
 #points-snackbar.show {
   visibility: visible; /* Show the snackbar */
   /* Add animation: Take 0.5 seconds to fade in and out the snackbar.

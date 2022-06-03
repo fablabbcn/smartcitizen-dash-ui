@@ -381,7 +381,8 @@ function displayKit(kit) {
     //side bar
     document.getElementById("main").insertAdjacentHTML('afterbegin',
         '<div id="sidebar" class="sidebar-small">\
-          <div id="points-snackbar">Woah! That\'s too many points!</div>\
+          <div id="points-snackbar">Woah! That\'s too many points!<br> We increased the interval a bit...</div>\
+          <div id="frequent-snackbar">Woah! That\'s too frequent data!</div>\
           <button id="sidebar-button">\
               🛠️\
           </button>\
@@ -470,8 +471,11 @@ function displayKit(kit) {
             var allowedRequestInterval = Math.round((latest - oldest) / 60000 / settings.maxDataPoints );
             document.getElementById("request-interval").min = allowedRequestInterval;
             document.getElementById("request-interval").value = allowedRequestInterval;
+            settings.minRequestInterval = allowedRequestInterval;
             settings.requestInterval = allowedRequestInterval;
             popUpToast('points-snackbar');
+          } else {
+            settings.minRequestInterval = settings.minDRequestInterval;
           }
 
           document.getElementById("refresh-button").disabled = false;
@@ -553,6 +557,11 @@ function displayKit(kit) {
       var requestInterval = document.getElementById("request-interval").value;
       if (requestInterval !== settings.requestInterval) {
         document.getElementById("refresh-button").disabled = false;
+        if (requestInterval < settings.minRequestInterval) {
+          popUpToast('frequent-snackbar');
+          document.getElementById("request-interval").value = settings.minRequestInterval;
+          requestInterval = settings.minRequestInterval;
+        }
         settings.requestInterval = requestInterval;
       };
     }
