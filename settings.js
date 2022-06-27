@@ -1,6 +1,6 @@
 let settings = {
   title: "Smart Citizen Dashboard",
-  //header: "Smart Citizen Dashboard"
+  header: "Smart Citizen Dashboard",
   showFilterHeader: true,
   filter: {type: "", value: "" },
   searchBar: true,
@@ -12,6 +12,7 @@ let settings = {
   minRequestInterval: 5,
   minDRequestInterval: 5,
   dates: ["", ""],
+  logo: 'smartcitizen_logo.png',
   // primarySensor: { id: 50, threshold: [60, 100] },
   // sensors: [
   //   {id: 55, threshold: [5, 30] },
