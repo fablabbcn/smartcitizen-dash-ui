@@ -24,6 +24,8 @@
   --colorSelect: #b9e3bd;
   --colorBlue: #0000ff;
   --colorYellow: #ffc100;
+  --colorActive: rgba(100,200,0,0.2);
+  --colorInactive: rgba(200,0,0,0.2);
   /* Fonts */
   --font-body: 'Kanit', sans-serif;
   --font-mono: 'Space Mono', monospace;
@@ -476,7 +478,7 @@ input:checked + .slider:before {
 #draggable-sensor-list{
   color: var(--colorBackground);
   z-index: 4;
-  width: 70%;
+  width: 75%;
   margin: auto;
 }
 
@@ -499,11 +501,60 @@ input:checked + .slider:before {
   /*border: 3px solid var(--colorBackground);*/
   border-radius: 34px;
   color: var(--colorBase);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .draggable-sensor-item-selected {
   background-color: var(--colorSelect);
 }
+
+.draggable-sensor-name {
+  margin-left: 20px;
+}
+
+.toggle-sensor-item{
+  border: .5px solid rgba(0, 0, 0, 0.21);
+  float: right;
+  margin-left: -10px;
+  cursor: pointer;
+  background-color: var(--colorInactive);
+}
+
+.toggle-sensor-item.round{
+  display:block;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  padding-bottom: 14px;
+}
+
+/*.toggle-sensor-item.round:before{
+  border-radius: 50%;
+}*/
+
+.toggle-sensor-item.active{
+  background-color: var(--colorActive);
+}
+
+.toggle-sensor-item:hover{
+  background-color: rgba(255,255,255,0.2);
+  transition: 0.2s ease-in-out;
+}
+
+.toggle-sensor-item:focus,
+.toggle-sensor-item:active{
+  background-color: var(--colorInactive);
+  transition: 0.2s ease-in-out;
+}
+
+.toggle-sensor-item.active:focus,
+.toggle-sensor-item.active:active{
+  background-color: var(--colorActive);
+  transition: 0.2s ease-in-out;
+}
+
 
 /*.draggable-sensor-item:after {
   right: 7px;
@@ -944,9 +995,7 @@ button.button-hide {
 
 #sensors:not(.sensors-loading) {
   transition: 0.5s;
-
 }
-
 
 /* detail */
 @media screen and (min-width: 1080px) {
@@ -1020,6 +1069,10 @@ h3 .latest-value {
 
 .device-header.large-header .sensor-header{
   text-align: center;
+}
+
+.sensor-item.graph-hidden {
+  display: none;
 }
 
 #sensors .device-header:not(.large-header) {

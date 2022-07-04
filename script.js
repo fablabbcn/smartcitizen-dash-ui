@@ -29,6 +29,7 @@ function dashboardInit() {
 function urlGetParameters() {
   const url = new URL(window.location.href);
   const params = url.searchParams;
+
   if (params.has("id") || params.has("tag") || params.has("city") || params.has("user")) {
     getFromUrl();
   } else {
@@ -41,12 +42,14 @@ function urlGetParameters() {
       getFromUrl();
     }
   }
+
   function getFromUrl() {
     params.has("id") === true ? (id = params.get("id")) : (id = null);
     params.has("tag") === true ? (tag = params.get("tag")) : (tag = null);
     params.has("city") === true ? (city = params.get("city")) : (city = null);
     params.has("user") === true ? (user = params.get("user")) : (user = null);
   }
+
 }
 
 // add parameters to url
@@ -264,33 +267,6 @@ function displayKits(kits, filterType = null, filterValue = null) {
     return elem;
   }
   
-  // function primarySensor(kit) {
-  //   const kitUrl = `https://api.smartcitizen.me/v0/devices/${kit.id}`;
-  //   https: fetch(kitUrl)
-  //   .then((res) => {
-  //     return res.json();
-  //   })
-  //   .then((kitPrimary) => {
-  //     if (kitPrimary.data && kit.isActive) {
-  //       for (let key in kitPrimary.data.sensors) {
-  //         if (kitPrimary.data.sensors[key].id === settings.primarySensor.id) {
-  //           primarySensorValue = kitPrimary.data.sensors[key].value;
-  //           primarySensorUnit = kitPrimary.data.sensors[key].unit;
-  //           primarySensorDesc = kitPrimary.data.sensors[key].description;
-  //           let primarySensorHtml = '<div class="primarySensor"><div>' + '<span class="primaryValue">' + primarySensorValue + '</span> ' + primarySensorUnit + '</div><div>' + primarySensorDesc + '</div></div>';
-  //           target = document.getElementById(kitPrimary.id);
-  //           if (target != null) {
-  //             target.classList.add(primarySensorCheck(primarySensorValue));
-  //             target.innerHTML += primarySensorHtml;
-  //           }
-  //           // moistureGradients(kit.id,primarySensorValue)
-  //           break;
-  //         }
-  //       }
-  //     }
-  //   });
-  // }
-  
   function webSocketIndexUpdate() {
     
     if (typeof socketDetail !== 'undefined') {
@@ -402,25 +378,29 @@ function displayKit(kit) {
 
   let d = new Date();
   let rightNow = d.toISOString().slice(0, 19)+'Z';
-  // 7 days ago
-  let then = new Date(d.setDate(d.getDate()-settings.defaultDays)).toISOString().slice(0, 10);
-  settings.dates [0] = then;
-  settings.dates [1] = rightNow;
+
+  let l = new Date(kit.last_reading_at).getTime();
+
+  if ((d-l)/1000/3600/24 < settings.defaultDays) {
+    // 7 days ago
+    let then = new Date(d.setDate(d.getDate()-settings.defaultDays)).toISOString().slice(0, 10);
+    settings.dates [0] = then;
+    settings.dates [1] = rightNow;
+  } else {
+    // 7 days from last reading
+    let then = new Date(l-settings.defaultDays*24*3600*1000).toISOString().slice(0, 10);
+    settings.dates [0] = then;
+    settings.dates [1] = kit.last_reading_at;
+  }
 
   kitData(kit);
 
   document.getElementById('header').classList.remove('flat-background');
   document.getElementById('header').classList.add('wavy-background');
-    document.getElementById('header').classList.add('large-top-header');
+  document.getElementById('header').classList.add('large-top-header');
 
-  
   document.getElementById('main').classList.remove('wavy-background');
   document.getElementById('main').classList.add('flat-background');
-
-  // document.body.insertAdjacentHTML('afterbegin',
-  //   '<div id="disclaimer"><h2>YIKES!</h2>Sorry! The device you are using is too small to view these graphs, and the data cannot be showing properly. ' +
-  //    'Try rotating your device (if you can), or using a larger screen...<div class="disclaimer-button"><button onclick=resetFilters()>Back to dashboard</button></div></div>'
-  //    )
 
   loading(false);
   webSocketDetailUpdate();
@@ -476,20 +456,25 @@ function displayKit(kit) {
       '<div id="draggable-sensor-list" class="sidebar-item-hidden"></div>');
     for (let i = 0; i < kit.data.sensors.length; i++) {
       document.getElementById('draggable-sensor-list').insertAdjacentHTML('afterbegin', 
-        '<div class="draggable-sensor-item" id="'+kit.data.sensors[i].id+'">'
+        '<div class="draggable-sensor-item active" id="'+kit.data.sensors[i].id+'">'
+        + '<div class="draggable-sensor-name">'
         + kit.data.sensors[i].name.split("-").pop() + '<span style="font-weight:lighter"> ('
-        + kit.data.sensors[i].name.split("-")[0].trimRight() + ')</span>' +'</div>');
+        + kit.data.sensors[i].name.split("-")[0].trimRight() + ')</span></div>'
+        + `<button id=drag-` + kit.data.sensors[i].id +` class="toggle-sensor-item round active" onclick="toggleSensorItem('`+ kit.data.sensors[i].id +`')"></button>`
+        + '</div>'
+      );
     }
 
     var ranged = new Datepicker('#ranged', {
       inline: true,
       ranged: true,
 
+      min: (function(){
+        return new Date(kit.added_at).getTime();
+      })(),
       // 10 days in the future
       max: (function(){
-        var date = new Date();
-        date.setDate(date.getDate());
-        return date;
+        return new Date(kit.last_reading_at).getTime();
       })(),
 
       // weekStart: 1,
@@ -637,7 +622,7 @@ function displayKit(kit) {
     new Sortable(dragArea, {
       animation: 200,
       swapThreshold: 0.5,
-      multiDrag: true, // Enable multi-drag
+      // multiDrag: true, // Enable multi-drag
       selectedClass: 'draggable-sensor-item-selected', // The class applied to the selected items
       fallbackTolerance: 3, // So that we can select items on mobile
       onUpdate: function( event, ui) {
@@ -687,7 +672,7 @@ function displayKit(kit) {
   
   function kitData(kit) {
     document.getElementById("main").insertAdjacentHTML('afterbegin',
-     '<ul class="list sensors-loading" id="sensors"></div>');
+     '<ul class="list sensors-loading" id="sensors"></ul>');
 
     for (let i = 0; i < kit.data.sensors.length; i++) {
       const sensorUrl = `https://api.smartcitizen.me/v0/devices/${kit.id}/readings?sensor_id=${kit.data.sensors[i].id}&rollup=${settings.requestInterval}m&from=${settings.dates[0]}&to=${settings.dates[1]}`;
@@ -699,31 +684,33 @@ function displayKit(kit) {
       .then((sensor) => {
 
         let sensorData = [[], []];
-        for (const reading of sensor.readings) {
+        if (sensor.readings !== undefined){
+          for (const reading of sensor.readings) {
 
-          let date = new Date(reading[0]).getTime() / 1000;
-          sensorData[0].push(date);
-          sensorData[1].push(reading[1]);
-        }
+            let date = new Date(reading[0]).getTime() / 1000;
+            sensorData[0].push(date);
+            sensorData[1].push(reading[1]);
+          }
 
-        // Reverse for uplot to understand
-        sensorData[0] = sensorData[0].reverse();
-        sensorData[1] = sensorData[1].reverse();
+          // Reverse for uplot to understand
+          sensorData[0] = sensorData[0].reverse();
+          sensorData[1] = sensorData[1].reverse();
 
-        data[kit.data.sensors[i].id] = sensorData;
+          data[kit.data.sensors[i].id] = sensorData;
 
-        var draggableSensors = [];
-        var idsInOrder = document.getElementById("draggable-sensor-list").children;
-        for (let j=0; j<idsInOrder.length; j++) {
-          draggableSensors.push(idsInOrder[j].id);
-        }
+          var draggableSensors = [];
+          var idsInOrder = document.getElementById("draggable-sensor-list").children;
+          for (let j=0; j<idsInOrder.length; j++) {
+            draggableSensors.push(idsInOrder[j].id);
+          }
 
-        displaySensor();
-        order(document.getElementById('sensors'), draggableSensors);
+          displaySensor();
+          order(document.getElementById('sensors'), draggableSensors);
 
-        if (i == kit.data.sensors.length - 1) {
-          let sdiv = document.getElementById('sensors');
-          sdiv.classList.remove('sensors-loading');
+          if (i == kit.data.sensors.length - 1) {
+            let sdiv = document.getElementById('sensors');
+            sdiv.classList.remove('sensors-loading');
+          }
         }
 
         function displaySensor() {
@@ -750,7 +737,7 @@ function displayKit(kit) {
             let sensors = document.getElementById("sensors");
             
             if (sensors) {
-              sensors.insertAdjacentHTML('beforeend', '<li id="' + kit.data.sensors[i].id + '" class="sensor-item ' + sensorStatus + '"></li>');
+              sensors.insertAdjacentHTML('beforeend', '<li id="' + kit.data.sensors[i].id + '" class="active sensor-item ' + sensorStatus + '"></li>');
             }
             
             let canvasParent = document.getElementById(kit.data.sensors[i].id);
@@ -1096,4 +1083,32 @@ function popUpToast(element_name) {
 
   // After 3 seconds, remove the show class from DIV
   setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-} 
+}
+
+function toggleSensorItem(id = null) {
+  // console.log(id);
+  // console.log(document.getElementById(id));
+  
+  let dragElement = document.getElementById('drag-' + id);
+  let elem = document.getElementById(id);
+
+  // for (let dragElement of dragElements) {
+    if (dragElement.id == 'drag-' + id) {
+      if (dragElement.classList.contains('active')) {
+        dragElement.classList.remove('active');
+      } else {
+        dragElement.classList.add('active');
+      }
+    }
+  // }
+
+  // for (let elem of elems) {
+    if (elem.id == id) {
+      if (elem.classList.contains('graph-hidden')) {
+        elem.classList.remove('graph-hidden');
+      } else {
+        elem.classList.add('graph-hidden');
+      }
+    }
+  // }
+};
