@@ -920,7 +920,7 @@ function resetFilters() {
 }
 
 /* MODAL */
-function extrasPopup() {
+function extrasPopup(timeseries = false, kit = null) {
   // console.log('opening pop-up');
 
   if (!document.getElementById("extras-modal")) {
@@ -932,7 +932,8 @@ function extrasPopup() {
       <h2>GET THIS DATA!</h2>\
       <div id="modal-wrapper">\
         <p> Click below to get a csv with all the data shown here.<br>\
-        Note that this will only download the data that you currently see on the dashboard...</p>\
+        Note that this will only download the data that you currently see on the dashboard...\
+        <br><span style="font-weight:bolder">This is an experimental feature. If you are looking for reliable data, use the API...</span></p>\
         </div>\
       </div>')
 
@@ -943,7 +944,7 @@ function extrasPopup() {
     let downloadButton = document.createElement("button");
     downloadButton.innerHTML = 'Download!';
     downloadButton.onclick = function () {
-      downloadData();
+      downloadData(timeseries, kit);
     };       
 
     modalWrapper.appendChild(downloadButton);
@@ -986,6 +987,7 @@ function morePopup(kit) {
         <li><span>Owner:</span> <a href="https://smartcitizen.me/users/' + kit.owner.id + '"" target=_blank>' + kit.owner.username + '</a></li>\
         <li><span>Tags:</span> ' + kit.user_tags + '</li>\
         <li><span>Latest Update:</span> ' + new Date(kit.last_reading_at).toLocaleString('en-GB') + '</li>\
+        <li><span>API endpoint:</span> <a href="https://api.smartcitizen.me/v0/devices/' + kit.id + '"" target=_blank>' + kit.id + '</a></li>\
         </div>\
         </div>\
       </div>')
@@ -1023,32 +1025,163 @@ window.onresize = function(event) {
     document.getElementById('main').style.paddingTop = oh;
 };
 
-function downloadData() {
-  // console.log(currentData)
-  var json = currentData
-  var fields = Object.keys(json[0])
-  var replacer = function(key, value) { return value === null ? '' : value } 
-  var csv = json.map(function(row){
-    return fields.map(function(fieldName){
-      return JSON.stringify(row[fieldName], replacer)
-    }).join('\t')
-  })
-  csv.unshift(fields.join('\t')) // add header column
-  csv = csv.join('\r\n');
-
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
-
-  const a = document.createElement('a')
-  a.setAttribute('href', url)
-  let fileName;
-  if (currentTitle === "") {
-    fileName = 'data_download'
-  } else {
-    fileName = currentTitle.split(' ').join('_').toLowerCase();
+class DataFrame {
+  constructor(columns = ['TIME'], index = null, data = null) {
+    this.columns = columns;
+    this.index = index;
+    this.data = data;
   }
-  a.setAttribute('download', fileName + '.csv');
-  a.click()
+
+  merge(series) {
+
+    //first add the name to our header
+    if (this.columns.includes(series.name)) {
+      console.log('includes ' + series.name)
+      return null
+    } else {
+      this.columns.push(series.name)
+    }
+
+    if (this.data === null && this.index === null) {
+      this.index = series.index
+      this.data = series.data.map(item => {
+        return [item]
+      })
+
+    } else {
+
+      let sindex = series.index
+      let sdata = series.data
+
+      // merge series to data nulls
+      for (let sidx in sindex) {
+        if (!this.index.includes(sindex[sidx])) {
+
+          var i=this.index.findIndex(function(element) {
+            return element > sindex[sidx];
+          });
+
+          this.index.splice(i, 0, sindex[sidx])
+          this.data.splice(i, 0, Array.apply(null, Array(this.columns.length -2)))
+        }
+      }
+
+      // the other way around
+      for (let tidx in this.index){
+        if (!sindex.includes(this.index[tidx])) {
+
+          let valMax = this.index[tidx]
+          var i=sindex.findIndex(function(element) {
+            return element > valMax;
+          });
+
+          sindex.splice(i, 0, this.index[tidx])
+          sdata.splice(i, 0, Array.apply(null, Array(1)))
+        }
+      }
+
+      // merge it all!
+      for (let didx in this.data) {
+        this.data[didx].push(sdata[didx])
+      }
+    }
+  }
+
+  to_csv() {
+
+    var index = this.index.map(item => {
+        return [new Date(item*1000).toISOString().slice(0, 19)+'Z']
+      })
+
+    var data = this.data
+
+    var json = index
+    for (let i in index) {
+      json[i].push(data[i])
+    }
+
+    var csv = json.map(function(row){
+      return row.join('\t')
+    })
+
+    csv.unshift(this.columns.join('\t')) // add header column
+    csv = csv.join('\r\n');
+
+    return csv
+  }
+}
+
+class Series {
+  constructor(name = '', index = [], data = null) {
+    this.name = name;
+    this.index = index;
+    this.data = data;
+  }
+}
+
+function downloadData(timeseries = false, kit = null) {
+
+  if (timeseries) {
+
+    let dataframe = new DataFrame()
+
+    let sensor_name;
+    for (let item in currentData) {
+      for (let sensor in kit.data.sensors) {
+        if (String(kit.data.sensors[sensor].id) === item) {
+          sensor_name = kit.data.sensors[sensor].name
+          break
+        }
+      }
+
+      if (sensor_name != undefined) {
+        let series = new Series( name = sensor_name)
+        series.index = currentData[item][0]
+        series.data = currentData[item][1]
+
+        dataframe.merge(series)
+      }
+    }
+
+    var csv = dataframe.to_csv()
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a')
+    a.setAttribute('href', url)
+    let fileName = 'data';
+    a.setAttribute('download', fileName + '.csv');
+    a.click()
+
+  } else {
+
+    var json = currentData
+    var fields = Object.keys(json[0])
+    var replacer = function(key, value) { return value === null ? '' : value }
+    var csv = json.map(function(row){
+      return fields.map(function(fieldName){
+        return JSON.stringify(row[fieldName], replacer)
+      }).join('\t')
+    })
+    csv.unshift(fields.join('\t')) // add header column
+    csv = csv.join('\r\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a')
+    a.setAttribute('href', url)
+    let fileName;
+    if (currentTitle === "") {
+      fileName = 'data_download'
+    } else {
+      fileName = currentTitle.split(' ').join('_').toLowerCase();
+    }
+    a.setAttribute('download', fileName + '.csv');
+    a.click()
+  }
+
 }
 
 function getSize(canvasParent) {
@@ -1058,8 +1191,6 @@ function getSize(canvasParent) {
   return {
     width: canvasWidth,
     height: (canvasWidth / 25) * 10,
-    // width: window.innerWidth/2 - 100,
-    // height: window.innerHeight/2 - 100,
   }
 }
 
