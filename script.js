@@ -1026,8 +1026,9 @@ window.onresize = function(event) {
 };
 
 class DataFrame {
-  constructor(columns = ['TIME'], index = null, data = null) {
+  constructor(columns = ['TIME'], units = ['ISO 8601'], index = null, data = null) {
     this.columns = columns;
+    this.units = units;
     this.index = index;
     this.data = data;
   }
@@ -1040,6 +1041,7 @@ class DataFrame {
       return null
     } else {
       this.columns.push(series.name)
+      this.units.push(series.unit)
     }
 
     if (this.data === null && this.index === null) {
@@ -1104,6 +1106,7 @@ class DataFrame {
       return row.join('\t')
     })
 
+    csv.unshift(this.units.join('\t')) // add units column
     csv.unshift(this.columns.join('\t')) // add header column
     csv = csv.join('\r\n');
 
@@ -1112,8 +1115,9 @@ class DataFrame {
 }
 
 class Series {
-  constructor(name = '', index = [], data = null) {
+  constructor(name = '', unit, index = [], data = null) {
     this.name = name;
+    this.unit = unit;
     this.index = index;
     this.data = data;
   }
@@ -1126,16 +1130,18 @@ function downloadData(timeseries = false, kit = null) {
     let dataframe = new DataFrame()
 
     let sensor_name;
+    let sensor_unit;
     for (let item in currentData) {
       for (let sensor in kit.data.sensors) {
         if (String(kit.data.sensors[sensor].id) === item) {
           sensor_name = kit.data.sensors[sensor].name
+          sensor_unit = kit.data.sensors[sensor].unit
           break
         }
       }
 
       if (sensor_name != undefined) {
-        let series = new Series( name = sensor_name)
+        let series = new Series( name = sensor_name, unit = sensor_unit)
         series.index = currentData[item][0]
         series.data = currentData[item][1]
 
