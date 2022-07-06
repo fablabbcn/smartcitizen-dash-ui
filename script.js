@@ -417,19 +417,13 @@ function displayKit(kit) {
           <div id="sidebar-items" class="sidebar-item-hidden">\
             <h3 class="sidebar-header">Dashboard settings</h3>\
             <div class="sidebar-settings">\
-              <label class="switch">\
-                <input id="toggle-auto-update" type="checkbox" checked=true></input>\
-                <span class="slider round"></span>\
-              </label>\
+              <button id="toggle-auto-update" class="active round"></button>\
               <label class="sidebar-text">\
                 AUTO UPDATE\
               </label>\
             </div>\
             <div class="sidebar-settings">\
-              <label class="switch">\
-                <input id="toggle-graphs" type="checkbox" checked=true></input>\
-                <span class="slider round"></span>\
-              </label>\
+              <button id="toggle-graphs" class="active round"></button>\
               <label class="sidebar-text">\
                 SHOW GRAPHS\
               </label>\
@@ -517,10 +511,10 @@ function displayKit(kit) {
 
           // console.log(settings.dates);
           if (latest < limit ) {
-            document.getElementById("toggle-auto-update").checked = false;
+            document.getElementById("toggle-auto-update").classList.remove('active');
             socketDetail.off();
           } else {
-            document.getElementById("toggle-auto-update").checked = true;
+            document.getElementById("toggle-auto-update").classList.add('active');
             webSocketDetailUpdate();
           }
         }
@@ -536,18 +530,47 @@ function displayKit(kit) {
       document.getElementById("sidebar-items").classList.toggle('sidebar-item-hidden');
     }
 
-    document.getElementById("toggle-auto-update").onchange = function() {
-      // console.log(this.checked);
-      if (this.checked === true) {
-        webSocketDetailUpdate();
-      } else {
+    document.getElementById("toggle-auto-update").onclick = function() {
+      console.log(this);
+      if (this.classList.contains('active')) {
         socketDetail.off();
+        this.classList.remove('active')
+      } else {
+        webSocketDetailUpdate();
+        this.classList.add('active')
       }
     }
 
-    document.getElementById("toggle-graphs").onchange = function() {
+    document.getElementById("toggle-graphs").onclick = function() {
       // console.log(this.checked);
-      if (this.checked === true) {
+      if (this.classList.contains('active')) {
+        plotelements = document.querySelectorAll('.uplot');
+        for (var i = 0; i < plotelements.length; i++) {
+          plotelements[i].classList.add('noshow');
+        }
+        document.getElementById("datepicker").classList.add('noshow');
+        document.getElementById("freqpicker").classList.add('noshow');
+
+        latestval = document.querySelectorAll('.latest-value');
+        for (var i = 0; i < latestval.length; i++) {
+          latestval[i].classList.add('nodecoration');
+          latestval[i].classList.add('breathe');
+        }
+
+        sensorelements = document.querySelectorAll('.sensor-item');
+        for (var i = 0; i < sensorelements.length; i++) {
+          sensorelements[i].classList.add('large-card');
+        }
+
+        headerelements = document.querySelectorAll('.device-header');
+        for (var i = 0; i < headerelements.length; i++) {
+          headerelements[i].classList.add('large-header');
+        }
+
+        this.classList.remove('active');
+
+      } else {
+
         plotelements = document.querySelectorAll('.uplot');
         for (var i = 0; i < plotelements.length; i++) {
           plotelements[i].classList.remove('noshow');
@@ -571,29 +594,7 @@ function displayKit(kit) {
           headerelements[i].classList.remove('large-header');
         }
 
-      } else {
-        plotelements = document.querySelectorAll('.uplot');
-        for (var i = 0; i < plotelements.length; i++) {
-          plotelements[i].classList.add('noshow');
-        }
-        document.getElementById("datepicker").classList.add('noshow');
-        document.getElementById("freqpicker").classList.add('noshow');
-
-        latestval = document.querySelectorAll('.latest-value');
-        for (var i = 0; i < latestval.length; i++) {
-          latestval[i].classList.add('nodecoration');
-          latestval[i].classList.add('breathe');
-        }
-
-        sensorelements = document.querySelectorAll('.sensor-item');
-        for (var i = 0; i < sensorelements.length; i++) {
-          sensorelements[i].classList.add('large-card');
-        }
-
-        headerelements = document.querySelectorAll('.device-header');
-        for (var i = 0; i < headerelements.length; i++) {
-          headerelements[i].classList.add('large-header');
-        }
+        this.classList.add('active');
       }
     }
 
@@ -645,6 +646,7 @@ function displayKit(kit) {
     
     // title
     header.insertAdjacentHTML('beforeend', '<div id="title"><span>' + kit.name + '</span></div>');
+    header.insertAdjacentHTML('beforeend', '<div id="owner_username"><span>by ' + kit.owner.username + '</span></div>');
     
     // subtitle
     header.insertAdjacentHTML('beforeend', '<div id="subtitle">' + kit.description + '</div>');
@@ -657,10 +659,18 @@ function displayKit(kit) {
     };
     
     // read more
-    document.getElementById("header").insertAdjacentHTML('beforeend', 
+    document.getElementById("header").insertAdjacentHTML('beforeend', '<div id="buttons-area"></div>')
+    document.getElementById("buttons-area").insertAdjacentHTML('beforeend', 
       '<button " id="more" target="_blank">More info on this kit</button>');
     document.getElementById("more").onclick = function () {
       morePopup(kit);
+    };
+
+    // download data
+    document.getElementById("buttons-area").insertAdjacentHTML('afterbegin', 
+      '<button " id="download-csv" target="_blank">Get this data</button>');
+    document.getElementById("download-csv").onclick = function () {
+      extrasPopup(true, kit);
     };
 
     // main class
