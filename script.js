@@ -103,6 +103,7 @@ function getKits(filterType = null, filterValue = null) {
 
 // display kits (index)
 function displayKits(kits, filterType = null, filterValue = null) {
+  var indexDone = false;
   document.getElementById("main").innerHTML = "";
   document.body.removeAttribute('id');
   document.body.removeAttribute('isGlobal');
@@ -122,29 +123,30 @@ function displayKits(kits, filterType = null, filterValue = null) {
   devices.classList.add('list');
 
   document.getElementById("main").appendChild(devices);
-  indexInterface();
+
+  if (settings.indexInt) {
+    indexInterface();
+  }
   loading(false);
 
   document.getElementById('header').classList.remove('wavy-background');
   document.getElementById('header').classList.remove('large-top-header');
   document.getElementById('header').classList.add('flat-background');
-  
+
   document.getElementById('main').classList.remove('flat-background');
   document.getElementById('main').classList.add('wavy-background');
 
-  
   for (let kit of kitsFiltered) {
     devices.appendChild(elemHtml(kit));
     kitsCounter++;
   }
-  
+
   searchBar();
   var oh = document.getElementById('header').offsetHeight;
   document.getElementById('main').style.paddingTop = oh;
   extraArea();
-  webSocketIndexUpdate();
+  // webSocketIndexUpdate();
 
-  // console.log(filterType);
 
   if (filterType == null) {
     document.getElementById('resetButton').classList.add('button-hide');
@@ -173,19 +175,19 @@ function displayKits(kits, filterType = null, filterValue = null) {
     }
 
     // subtitle
-    header.insertAdjacentHTML('beforeend', '<div id="subtitle">' + activeCounter + ' Kits connected from a total of ' + kitsFiltered.length + 
+    header.insertAdjacentHTML('beforeend', '<div id="subtitle">' + activeCounter + ' Kits connected from a total of ' + kitsFiltered.length +
       ' (' + Math.round(activeCounter/kitsFiltered.length*100) + ' %)' + '</div>');
-  
+
     currentData = kitsFiltered;
   }
-  
+
   function filterKits() {
+
     let kitsFiltered = [];
     let activeCounter = 0;
     let dateNow = new Date();
     for (let kit of kits) {
-      
-      // Add 'is active' value      
+      // Add 'is active' value
       if (settings.activeByMinutes){
         let dateDifferenceMinutes = Math.abs(Math.round((dateNow.getTime() - new Date(kit.last_reading_at).getTime()) / 1000 / 60));
         // Check if it's still active
@@ -194,7 +196,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
         } else {
           kit.isActive = false;
         }
-      } else {      
+      } else {
         if (kit.system_tags.includes("online")) { kit.isActive = true}
         else if (kit.system_tags.includes("offline")) { kit.isActive = false}
       }
@@ -223,33 +225,35 @@ function displayKits(kits, filterType = null, filterValue = null) {
 
     return { activeCounter, kitsFiltered }
   }
-  
+
   function elemHtml(kit) {
     let elem = document.createElement("div");
     elem.classList.add("device");
     elem.id = kit.id;
     kit.isActive ? elem.classList.add("active") : elem.classList.add("inactive");
 
-    elem.innerHTML += `<div class="name" onclick="dashboardUpdate('id','` + kit.id + `')">` 
-    + kit.name + '<br><span style="font-weight: 100;">' + ' by ' + kit.owner_username + '</span>' + '</div>'
-    
+    elem.innerHTML += `<div class="name" onclick="dashboardUpdate('id','` + kit.id + `')">`
+    + kit.name
+    // + '<br><span style="font-weight: 100;">' + ' by ' + kit.owner_username + '</span>'
+    + '</div>'
+
     for (let i = 0; i < settings.indexView.length; i++) {
       switch (settings.indexView[i]) {
         case "id":
           elem.innerHTML += `<div class="id" onclick="dashboardUpdate('id','` + kit.id + `')">` + kit.id + '</div>';
           break;
         case "city":
-          elem.innerHTML += `<div class="city" onclick="dashboardUpdate('city','` + kit.city + `')">` + kit.city + '</div>';
+          elem.innerHTML += `<div class="city" onclick="dashboardUpdate('city','` + kit.location.city + `')">` + kit.location.city + '</div>';
           break;
         case "user":
-          elem.innerHTML += `<div class="user" onclick="dashboardUpdate('user','` + kit.owner_username + 
+          elem.innerHTML += `<div class="user" onclick="dashboardUpdate('user','` + kit.owner_username +
         `')">` + kit.owner_username + '</div>';
           break;
         case "tags":
           if (kit.user_tags.length > 0) {
             elemTags = '<div class="tags">';
             for (let i = 0; i < kit.user_tags.length; i++) {
-              elemTags += `<div class="tag" onclick="dashboardUpdate('tag','` + kit.user_tags[i] + `')">` 
+              elemTags += `<div class="tag" onclick="dashboardUpdate('tag','` + kit.user_tags[i] + `')">`
               + kit.user_tags[i] + '</div>';
             }
             elem.innerHTML += elemTags;
@@ -266,32 +270,7 @@ function displayKits(kits, filterType = null, filterValue = null) {
     // }
     return elem;
   }
-  
-  function webSocketIndexUpdate() {
-    
-    if (typeof socketDetail !== 'undefined') {
-      socketDetail.off();
-    }
 
-    socketIndex = io.connect("wss://ws.smartcitizen.me", { reconnect: true });
-    socketIndex.on("data-received", d => {
-      if (document.body.classList.contains("index")) {
-        target = document.getElementById(d.id);
-        if (target !== null) {
-          target.classList.remove("updated");
-          target.classList.add("updated");
-          // Update
-          targetUpdate = target.getElementsByClassName("lastUpdate")[0];
-          if (targetUpdate !== undefined) {
-            let dateNow = new Date();
-            targetUpdate.textContent = 'Last Update: ' + dateNow.toLocaleString("en-GB");
-            // console.log(d.name + ': updated!');
-          }
-        }
-      }
-    });
-  }
-  
   function searchBar() {
     if (settings.searchBar) {
       // Display
@@ -308,17 +287,17 @@ function displayKits(kits, filterType = null, filterValue = null) {
           searchInput.classList.add("fuzzy-search");
           searchInput.id = "searchInput";
           document.getElementById("searchBar").insertAdjacentElement('afterbegin', searchInput);
-          
+
           let resetButton = document.createElement("button");
           resetButton.id = "resetButton";
           resetButton.innerHTML = 'Reset';
           resetButton.onclick = function () {
             resetFilters();
-          };         
-          document.getElementById("searchBar").insertAdjacentElement('beforeend', resetButton);    
+          };
+          document.getElementById("searchBar").insertAdjacentElement('beforeend', resetButton);
 
           // Search init
-          let mainList = new List('main', { 
+          let mainList = new List('main', {
             valueNames: ['name', 'city', 'tag', 'id', 'lastUpdate']
           });
 
@@ -334,19 +313,6 @@ function displayKits(kits, filterType = null, filterValue = null) {
       }
     }
   }
-
-
-  
-  // function primarySensorCheck(value) {
-  //   let sensorStatus;
-  //   if ((settings.primarySensor.threshold[0] <= value) && (value <= settings.primarySensor.threshold[1])) {
-  //     sensorStatus = 'inRange'
-  //   } else {
-  //     sensorStatus = 'outRange'
-  //   }
-
-  //   return sensorStatus;
-  // }
 }
 
 function extraArea() {
@@ -359,11 +325,11 @@ function extraArea() {
         extrasButton.innerHTML = 'GET THIS DATA';
         extrasButton.onclick = function () {
           extrasPopup();
-        };         
-        document.getElementById("searchBar").insertAdjacentElement('afterbegin', extrasButton);    
+        };
+        document.getElementById("searchBar").insertAdjacentElement('afterbegin', extrasButton);
     }
   }
-}  
+}
 
 // display kit (detail)
 function displayKit(kit) {
@@ -417,12 +383,6 @@ function displayKit(kit) {
           <div id="sidebar-items" class="sidebar-item-hidden">\
             <h3 class="sidebar-header">Dashboard settings</h3>\
             <div class="sidebar-settings">\
-              <button id="toggle-auto-update" class="active round"></button>\
-              <label class="sidebar-text">\
-                AUTO UPDATE\
-              </label>\
-            </div>\
-            <div class="sidebar-settings">\
               <button id="toggle-graphs" class="active round"></button>\
               <label class="sidebar-text">\
                 SHOW GRAPHS\
@@ -446,10 +406,10 @@ function displayKit(kit) {
 
     document.getElementById("refresh-button").disabled = true;
 
-    document.getElementById("sidebar").insertAdjacentHTML('beforeend', 
+    document.getElementById("sidebar").insertAdjacentHTML('beforeend',
       '<div id="draggable-sensor-list" class="sidebar-item-hidden"></div>');
     for (let i = 0; i < kit.data.sensors.length; i++) {
-      document.getElementById('draggable-sensor-list').insertAdjacentHTML('afterbegin', 
+      document.getElementById('draggable-sensor-list').insertAdjacentHTML('afterbegin',
         '<div class="draggable-sensor-item active" id="'+kit.data.sensors[i].id+'">'
         + '<div class="draggable-sensor-name">'
         + kit.data.sensors[i].name.split("-").pop() + '<span style="font-weight:lighter"> ('
@@ -528,17 +488,6 @@ function displayKit(kit) {
       // document.getElementById("sidebar-settings-header").classList.toggle('sidebar-item-hidden');
       // document.getElementById("sidebar-order-header").classList.toggle('sidebar-item-hidden');
       document.getElementById("sidebar-items").classList.toggle('sidebar-item-hidden');
-    }
-
-    document.getElementById("toggle-auto-update").onclick = function() {
-      console.log(this);
-      if (this.classList.contains('active')) {
-        socketDetail.off();
-        this.classList.remove('active')
-      } else {
-        webSocketDetailUpdate();
-        this.classList.add('active')
-      }
     }
 
     document.getElementById("toggle-graphs").onclick = function() {
@@ -637,17 +586,17 @@ function displayKit(kit) {
       }
     });
   }
-  
+
   function detailInterface() {
     let header = document.getElementById('header');
     // id
     document.body.removeAttribute('id');
     document.body.setAttribute('id', kit.id);
-    
+
     // title
     header.insertAdjacentHTML('beforeend', '<div id="title"><span>' + kit.name + '</span></div>');
     header.insertAdjacentHTML('beforeend', '<div id="owner_username"><span>by ' + kit.owner.username + '</span></div>');
-    
+
     // subtitle
     header.insertAdjacentHTML('beforeend', '<div id="subtitle">' + kit.description + '</div>');
 
@@ -657,17 +606,17 @@ function displayKit(kit) {
       resetFilters();
       socketDetail.off();
     };
-    
+
     // read more
     document.getElementById("header").insertAdjacentHTML('beforeend', '<div id="buttons-area"></div>')
-    document.getElementById("buttons-area").insertAdjacentHTML('beforeend', 
+    document.getElementById("buttons-area").insertAdjacentHTML('beforeend',
       '<button " id="more" target="_blank">More info on this kit</button>');
     document.getElementById("more").onclick = function () {
       morePopup(kit);
     };
 
     // download data
-    document.getElementById("buttons-area").insertAdjacentHTML('afterbegin', 
+    document.getElementById("buttons-area").insertAdjacentHTML('afterbegin',
       '<button " id="download-csv" target="_blank">Get this data</button>');
     document.getElementById("download-csv").onclick = function () {
       extrasPopup(true, kit);
@@ -679,7 +628,7 @@ function displayKit(kit) {
       document.getElementById("main").classList.add(tag);
     }
   }
-  
+
   function kitData(kit) {
     document.getElementById("main").insertAdjacentHTML('afterbegin',
      '<ul class="list sensors-loading" id="sensors"></ul>');
@@ -729,7 +678,7 @@ function displayKit(kit) {
             let sensor_id = kit.data.sensors[i].id;
             let value = Math.floor(kit.data.sensors[i].value, 1);
             let sensorStatus;
-            
+
             if (settings.sensors) {
               for (let i = 0; i < settings.sensors.length; i++) {
                 if (settings.sensors[i].id == sensor_id) {
@@ -745,11 +694,11 @@ function displayKit(kit) {
             }
 
             let sensors = document.getElementById("sensors");
-            
+
             if (sensors) {
               sensors.insertAdjacentHTML('beforeend', '<li id="' + kit.data.sensors[i].id + '" class="active sensor-item ' + sensorStatus + '"></li>');
             }
-            
+
             let canvasParent = document.getElementById(kit.data.sensors[i].id);
             var style = getComputedStyle(document.body);
 
@@ -758,7 +707,7 @@ function displayKit(kit) {
               + kit.data.sensors[i].name.split("-").pop() + '</h2><span class="sensor-name"> ('
               + kit.data.sensors[i].name.split("-")[0].trimRight() + ')</span></div>'
               + '<h3 class="latest-value"><span class="value">' + value + '</span>' + kit.data.sensors[i].unit + '</h3></div>');
-              
+
               const opts = {
                 class: "chart",
                 ...getSize(canvasParent),
@@ -811,7 +760,7 @@ function displayKit(kit) {
   }
 
   function webSocketDetailUpdate() {
-    
+
     if (typeof socketIndex !== 'undefined') {
       socketIndex.off();
     }
@@ -820,17 +769,17 @@ function displayKit(kit) {
     socketDetail.on("data-received", d => {
       if (d.id == kit.id) {
         for (let i = 0; i < d.data.sensors.length; i++) {
-          
+
           let id = d.data.sensors[i].id;
           let elem = document.getElementById(id);
-          
+
           if (elem) {
-            
+
             let newValue = d.data.sensors[i].value;
 
             if (newValue){
               // Update banner
-              
+
               let currentValue = elem.getElementsByClassName("value")[1];
               if (currentValue != undefined){
                 currentValue.innerHTML = Math.round(newValue);
@@ -848,7 +797,7 @@ function displayKit(kit) {
                 plots[id].setData(data[id]);
               }
             }
-            
+
 
 
             let sensorStatus;
@@ -926,7 +875,7 @@ function extrasPopup(timeseries = false, kit = null) {
   if (!document.getElementById("extras-modal")) {
     document.getElementById("main").insertAdjacentHTML('afterbegin', '<div id="extras-modal"></div>');
     modal = document.getElementById("extras-modal");
-    modal.insertAdjacentHTML('afterbegin', 
+    modal.insertAdjacentHTML('afterbegin',
       '<div id="modal-content">\
       <span id="modal-close">&times;</span>\
       <h2>GET THIS DATA!</h2>\
@@ -945,7 +894,7 @@ function extrasPopup(timeseries = false, kit = null) {
     downloadButton.innerHTML = 'Download!';
     downloadButton.onclick = function () {
       downloadData(timeseries, kit);
-    };       
+    };
 
     modalWrapper.appendChild(downloadButton);
   }
@@ -973,7 +922,7 @@ function morePopup(kit) {
     document.getElementById("main").insertAdjacentHTML('afterbegin', '<div id="more-modal"></div>');
     modal = document.getElementById("more-modal");
     // console.log(kit);
-    modal.insertAdjacentHTML('afterbegin', 
+    modal.insertAdjacentHTML('afterbegin',
       '<div id="modal-content">\
       <span id="modal-close">&times;</span>\
       <h2>Info for this kit</h2>\
@@ -1000,7 +949,7 @@ function morePopup(kit) {
     downloadButton.innerHTML = 'Download!';
     downloadButton.onclick = function () {
       downloadData();
-    };       
+    };
 
     // modalWrapper.appendChild(downloadButton);
   }
@@ -1235,7 +1184,7 @@ function popUpToast(element_name) {
 function toggleSensorItem(id = null) {
   // console.log(id);
   // console.log(document.getElementById(id));
-  
+
   let dragElement = document.getElementById('drag-' + id);
   let elem = document.getElementById(id);
 
